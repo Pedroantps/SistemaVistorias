@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste de Importação</title>
+</head>
+<body style="font-family: Arial; padding: 50px;">
+
+    <h2>Teste: Envio de Planilha para a API</h2>
+    
+    <input type="file" id="arquivoExcel" accept=".xlsx" />
+    <button onclick="enviarParaAPI()" style="padding: 10px; cursor: pointer;">Importar Dados</button>
+    
+    <div style="margin-top: 20px; padding: 15px; background: #f4f4f4; border-radius: 5px;">
+        <strong>Resposta do Servidor:</strong>
+        <pre id="resultado">Aguardando envio...</pre>
+    </div>
+
+    <script>
+        async function enviarParaAPI() {
+            const input = document.getElementById('arquivoExcel');
+            const resultado = document.getElementById('resultado');
+
+            if (input.files.length === 0) {
+                alert('Selecione a planilha da AGEVAP primeiro!');
+                return;
+            }
+
+            // Empacota o arquivo para envio
+            const formData = new FormData();
+            formData.append('arquivo', input.files[0]);
+
+            resultado.innerText = "Processando... aguarde.";
+
+            try {
+                // ATENÇÃO: Confirme se a porta (5000) é a mesma que apareceu no terminal do C#
+                const resposta = await fetch('http://localhost:5158/api/importacao/excel', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                // Converte a resposta da API para mostrar na tela
+                const dados = await resposta.json();
+                resultado.innerText = JSON.stringify(dados, null, 2);
+                
+            } catch (erro) {
+                resultado.innerText = "Erro ao conectar com a API: " + erro;
+            }
+        }
+    </script>
+</body>
+</html>

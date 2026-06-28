@@ -1,0 +1,7 @@
+# Segredos e variaveis de ambiente
+.env
+
+# Pastas de build do .NET (futuro)
+/backend/bin/
+/backend/obj/
+/backend/appsettings.Development.json
