@@ -330,6 +330,13 @@
                         <span class="text text-dark">Buscar Património</span>
                     </a>
                 </li>
+                <li class="menu-label px-3 text-muted mt-4" style="font-size: 0.8rem; font-weight: 600;">ADMINISTRAÇÃO</li>
+                <li>
+                    <a href="importacao.html" class="nav-link-custom d-flex align-items-center px-3 py-2 text-decoration-none">
+                        <div class="icon-box me-2"><i class="bi bi-file-earmark-excel"></i></div>
+                        <span class="text text-dark">Importar Dados</span>
+                    </a>
+</li>
             </ul>
         </div>
     </nav>
@@ -353,11 +360,13 @@
                         
                         <div class="mb-3 text-start">
                             <label for="contratoSelect" class="form-label" style="font-weight: 500; color: #344767;">Contrato de Gestão</label>
-                            <select id="contratoSelect" class="form-select form-select-lg">
-                                <option value="">Selecione o Contrato...</option>
+                            <select class="form-select form-select-lg" id="contratoGestao" required>
+                                <option value="" disabled selected>Selecione o Contrato de Gestão...</option>
                                 <option value="CG INEA GUANDU">CG INEA GUANDU</option>
                                 <option value="CG INEA CBHs">CG INEA CBHs</option>
                                 <option value="CG INEA BG">CG INEA BG</option>
+                                <option value="CG INEA Nº 003/2010 - CEDIDO">CG INEA Nº 003/2010 - CEDIDO</option>
+                                <option value="CG INEA Nº 002/2017 - CEDIDO">CG INEA Nº 002/2017 - CEDIDO</option>
                             </select>
                         </div>
 

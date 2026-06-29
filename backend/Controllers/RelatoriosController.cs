@@ -5,8 +5,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaVistorias.Data;
 using SistemaVistorias.Models;
-using System.Globalization;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using Word = DocumentFormat.OpenXml.Wordprocessing;
+using A = DocumentFormat.OpenXml.Drawing;
+using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
+using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
 
 namespace SistemaVistorias.Controllers
 {
@@ -53,7 +60,6 @@ namespace SistemaVistorias.Controllers
                     if (body == null)
                         return StatusCode(500, new { mensagem = "Modelo do relatório inválido." });
 
-                    // Remove exemplo padrão do template e insere dados reais
                     PreencherBensNoTemplate(body, ativosVistoriados, documento);
                     documento.MainDocumentPart!.Document.Save();
                 }
@@ -102,203 +108,210 @@ namespace SistemaVistorias.Controllers
 
         private static void PreencherBensNoTemplate(Body body, IReadOnlyList<Ativo> ativos, WordprocessingDocument documento)
         {
-            // Encontra e remove os bens de exemplo (placeholders do template)
-            RemoverBensExemplo(body);
+            var paragrafoAncora = body.Elements<Word.Paragraph>()
+                .FirstOrDefault(p => p.InnerText.Contains("Os seguintes bens foram classificados como inservíveis"));
 
-            // Insere os bens reais a partir do primeiro bem vistoriado
-            for (int i = 0; i < ativos.Count; i++)
-            {
-                var ativo = ativos[i];
-                InserirelatorioAtivo(body, ativo, documento, i == 0);
-            }
-        }
+            if (paragrafoAncora == null) return;
 
-        private static void RemoverBensExemplo(Body body)
-        {
-            // Remove os elementos do template de exemplo
-            var toRemove = new List<OpenXmlElement>();
-
-            // Remove todas as tabelas que contêm os dados de exemplo do template
-            // (as tabelas na seção "Classificação e Registros Fotográficos")
-            var tables = body.Elements<Word.Table>().ToList();
+            var moldeDetalhes = body.Elements<Word.Table>()
+                .FirstOrDefault(t => t.InnerText.Contains("Contrato de Gestão") && t.InnerText.Contains("Patrimônio AGEVAP"));
             
-            foreach (var table in tables)
+            var moldeFotos = body.Elements<Word.Table>()
+                .FirstOrDefault(t => t.InnerText.Contains("Vista Frontal") && t.InnerText.Contains("Vista Etiqueta"));
+
+            RemoverBensExemplo(body, paragrafoAncora);
+
+            OpenXmlElement posicaoAtual = paragrafoAncora;
+
+            foreach (var ativo in ativos)
             {
-                var tableText = table.InnerText;
-                // Se a tabela contém informações de exemplo (000, 325, Vista Frontal, etc)
-                if (tableText.Contains("000") && tableText.Contains("325") && tableText.Contains("Vista Frontal"))
+                var tituloBem = CriarParagrafo(ativo.ContratoGestao, bold: true, fontSize: "24");
+                posicaoAtual = posicaoAtual.InsertAfterSelf(tituloBem);
+
+                if (moldeDetalhes != null)
                 {
-                    toRemove.Add(table);
+                    var novaTabelaDetalhes = (Word.Table)moldeDetalhes.CloneNode(true);
+                    PreencherDadosTabelaClonada(novaTabelaDetalhes, ativo);
+                    posicaoAtual = posicaoAtual.InsertAfterSelf(novaTabelaDetalhes);
                 }
-            }
 
-            // Remove os parágrafos que são títulos de exemplos ou separadores
-            var paragraphs = body.Elements<Word.Paragraph>().ToList();
-            bool removendoExemplos = false;
-
-            for (int i = 0; i < paragraphs.Count; i++)
-            {
-                var paraText = paragraphs[i].InnerText;
+                if (moldeFotos != null)
+                {
+                    posicaoAtual = posicaoAtual.InsertAfterSelf(new Word.Paragraph(new Word.Run(new Word.Text("")))); 
+                    
+                    var novaTabelaFotos = (Word.Table)moldeFotos.CloneNode(true);
+                    PreencherImagensNaTabela(documento.MainDocumentPart!, novaTabelaFotos, ativo);
+                    
+                    posicaoAtual = posicaoAtual.InsertAfterSelf(novaTabelaFotos);
+                }
                 
-                // Identifica início da seção de exemplos
-                if (paraText.Contains("Classificação") && paraText.Contains("Fotográficos"))
-                {
-                    removendoExemplos = true;
-                    continue;
-                }
-
-                // Para de remover quando encontra "Anexo" ou "Conclusões" (outras seções do relatório)
-                if (removendoExemplos && (paraText.Contains("Anexo") || paraText.Contains("Conclusões")))
-                {
-                    removendoExemplos = false;
-                }
-
-                // Remove parágrafos que contêm "CG INEA" enquanto estiver na seção de exemplos
-                if (removendoExemplos && paraText.Contains("CG INEA") && paraText.Contains("2022"))
-                {
-                    toRemove.Add(paragraphs[i]);
-                }
-
-                // Remove parágrafos com números de exemplo isolados
-                if (removendoExemplos && (paraText.Trim() == "000" || paraText.Trim() == "325"))
-                {
-                    toRemove.Add(paragraphs[i]);
-                }
-            }
-
-            // Remove todos os elementos marcados
-            foreach (var element in toRemove)
-            {
-                element.Remove();
+                posicaoAtual = posicaoAtual.InsertAfterSelf(new Word.Paragraph(new Word.Run(new Word.Text(""))));
             }
         }
 
-        private static void InserirelatorioAtivo(Body body, Ativo ativo, WordprocessingDocument documento, bool ehPrimeiro)
+        private static void RemoverBensExemplo(Body body, Word.Paragraph paragrafoAncora)
         {
-            // Encontra a posição de inserção (após a última tabela ou fim do documento)
-            var posicaoInsercao = body.Elements().LastOrDefault();
+            var elementosParaRemover = new List<OpenXmlElement>();
+            var elementoAtual = paragrafoAncora.NextSibling();
 
-            // Cria seção para o bem
-            var paragrafoCabecalho = CriarParagrafo($"Bem Patrimônio AGEVAP nº {ativo.PatrimonioAgevap} - {ativo.ContratoGestao}", bold: true, fontSize: "16");
+            while (elementoAtual != null)
+            {
+                if (elementoAtual is Word.Paragraph p && 
+                   (p.InnerText.Contains("Recomendações") || p.InnerText.Contains("Conclusões")))
+                {
+                    break;
+                }
+
+                elementosParaRemover.Add(elementoAtual);
+                elementoAtual = elementoAtual.NextSibling();
+            }
+
+            foreach (var el in elementosParaRemover)
+            {
+                el.Remove();
+            }
+        }
+
+        private static void PreencherDadosTabelaClonada(Word.Table tabela, Ativo ativo)
+        {
+            var linhas = tabela.Elements<Word.TableRow>().ToList();
+
+            SubstituirTextoCelula(linhas.ElementAtOrDefault(0), ativo.ContratoGestao);
+            SubstituirTextoCelula(linhas.ElementAtOrDefault(1), ativo.PatrimonioAgevap);
+            SubstituirTextoCelula(linhas.ElementAtOrDefault(2), ativo.PatrimonioOrgaoGestor);
+            SubstituirTextoCelula(linhas.ElementAtOrDefault(3), ativo.Descricao);
+            SubstituirTextoCelula(linhas.ElementAtOrDefault(4), ativo.InstalacaoEndereco);
+            SubstituirTextoCelula(linhas.ElementAtOrDefault(5), ativo.NovoEstadoConservacao ?? ativo.CondicaoFuncional);
+            SubstituirTextoCelula(linhas.ElementAtOrDefault(6), ativo.NumeroLaudo ?? "N/A");
+        }
+
+        private static void SubstituirTextoCelula(Word.TableRow linha, string novoTexto)
+        {
+            if (linha == null) return;
             
-            // Tabela com informações do bem
-            var tabelaBem = CriarTabelaBemDetalhado(ativo);
-
-            // Parágrafos para as fotos
-            var paragrafFotos = CriarParagrafo("Registros Fotográficos:", bold: true, fontSize: "14");
-
-            // Insere os elementos
-            if (posicaoInsercao != null)
+            var celulaValor = linha.Elements<Word.TableCell>().LastOrDefault();
+            var paragrafo = celulaValor?.Elements<Word.Paragraph>().FirstOrDefault();
+            
+            if (paragrafo != null)
             {
-                posicaoInsercao.InsertAfterSelf(paragrafoCabecalho);
-                paragrafoCabecalho.InsertAfterSelf(tabelaBem);
-                tabelaBem.InsertAfterSelf(paragrafFotos);
+                var runReferencia = paragrafo.Elements<Word.Run>().FirstOrDefault();
+                var propriedades = runReferencia?.RunProperties != null ? 
+                    (Word.RunProperties)runReferencia.RunProperties.CloneNode(true) : null;
 
-                // Insere imagens se disponível
-                if (!string.IsNullOrEmpty(ativo.CaminhoFotos))
+                paragrafo.RemoveAllChildren<Word.Run>();
+
+                var novoRun = new Word.Run();
+                if (propriedades != null) novoRun.Append(propriedades);
+                novoRun.Append(new Word.Text(novoTexto ?? string.Empty));
+                
+                paragrafo.Append(novoRun);
+            }
+        }
+
+        private static void PreencherImagensNaTabela(MainDocumentPart mainPart, Word.Table tabelaFotos, Ativo ativo)
+        {
+            // CORREÇÃO 1: Remove IMEDIATAMENTE todos os desenhos/placeholders antigos do molde clonado
+            // Isso garante que se uma foto não for encontrada, o espaço ficará vazio em vez de repetir a foto do template
+            foreach (var desenho in tabelaFotos.Descendants<Word.Drawing>().ToList())
+            {
+                desenho.Remove();
+            }
+
+            if (string.IsNullOrEmpty(ativo.CaminhoFotos)) return;
+
+            var listaFotos = ativo.CaminhoFotos.Split(';');
+            var basePasta = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "fotos_vistorias");
+
+            foreach (var celula in tabelaFotos.Descendants<Word.TableCell>())
+            {
+                var textoCelula = celula.InnerText;
+                string fotoRelativa = null;
+
+                // CORREÇÃO 2: Busca inteligente. Tenta achar pelo nome da posição ("Esquerda"), 
+                // se não achar, faz o fallback pela ordem exata em que as fotos foram gravadas no banco.
+                if (textoCelula.Contains("Esquerda")) 
                 {
-                    InsertarImagensDoAtivo(documento, paragrafFotos, ativo.CaminhoFotos);
+                    fotoRelativa = listaFotos.FirstOrDefault(f => f.Contains("Esquerda")) 
+                                ?? (listaFotos.Length > 0 ? listaFotos[0] : null);
+                }
+                else if (textoCelula.Contains("Direita")) 
+                {
+                    fotoRelativa = listaFotos.FirstOrDefault(f => f.Contains("Direita")) 
+                                ?? (listaFotos.Length > 1 ? listaFotos[1] : null);
+                }
+                else if (textoCelula.Contains("Frontal")) 
+                {
+                    fotoRelativa = listaFotos.FirstOrDefault(f => f.Contains("Frontal")) 
+                                ?? (listaFotos.Length > 2 ? listaFotos[2] : null);
+                }
+                else if (textoCelula.Contains("Etiqueta")) 
+                {
+                    fotoRelativa = listaFotos.FirstOrDefault(f => f.Contains("Etiqueta")) 
+                                ?? (listaFotos.Length > 3 ? listaFotos[3] : null);
+                }
+
+                if (!string.IsNullOrEmpty(fotoRelativa))
+                {
+                    var caminhoCompleto = Path.Combine(basePasta, fotoRelativa.Replace('/', Path.DirectorySeparatorChar));
+                    
+                    if (System.IO.File.Exists(caminhoCompleto))
+                    {
+                        SubstituirTextoPorImagemXml(mainPart, celula, caminhoCompleto);
+                    }
                 }
             }
         }
 
-        private static Word.Table CriarTabelaBemDetalhado(Ativo ativo)
+        private static void SubstituirTextoPorImagemXml(MainDocumentPart mainPart, Word.TableCell celula, string caminhoArquivo)
         {
-            var table = new Word.Table();
-            table.AppendChild(new TableProperties(
-                new TableWidth { Width = "5000", Type = TableWidthUnitValues.Pct },
-                new TableBorders(
-                    new TopBorder { Val = BorderValues.Single, Size = 4 },
-                    new BottomBorder { Val = BorderValues.Single, Size = 4 },
-                    new LeftBorder { Val = BorderValues.Single, Size = 4 },
-                    new RightBorder { Val = BorderValues.Single, Size = 4 },
-                    new InsideHorizontalBorder { Val = BorderValues.Single, Size = 4 },
-                    new InsideVerticalBorder { Val = BorderValues.Single, Size = 4 })));
+            var extensao = Path.GetExtension(caminhoArquivo).ToLower();
+            var tipoImagem = extensao == ".png" ? ImagePartType.Png : ImagePartType.Jpeg;
 
-            table.AppendChild(new TableGrid(
-                new GridColumn { Width = "1500" },
-                new GridColumn { Width = "3500" }));
-
-            // Adiciona linhas com informações do bem
-            AdicionarLinhaTabela(table, "Contrato de Gestão:", ativo.ContratoGestao, bold: true);
-            AdicionarLinhaTabela(table, "Número do Patrimônio AGEVAP:", ativo.PatrimonioAgevap, bold: false);
-            AdicionarLinhaTabela(table, "Patrimônio Órgão Gestor:", ativo.PatrimonioOrgaoGestor, bold: false);
-            AdicionarLinhaTabela(table, "Descrição:", ativo.Descricao, bold: false);
-            AdicionarLinhaTabela(table, "Endereço:", ativo.InstalacaoEndereco, bold: false);
-            AdicionarLinhaTabela(table, "Estado de Conservação:", ativo.NovoEstadoConservacao ?? ativo.CondicaoFuncional, bold: false);
-            AdicionarLinhaTabela(table, "Número do Laudo:", ativo.NumeroLaudo ?? "N/A", bold: false);
-            AdicionarLinhaTabela(table, "Data da Vistoria:", ativo.DataVistoria?.ToString("dd/MM/yyyy") ?? "N/A", bold: false);
-
-            return table;
-        }
-
-        private static void AdicionarLinhaTabela(Word.Table table, string rotulo, string valor, bool bold = false)
-        {
-            var row = new Word.TableRow();
-
-            // Célula do rótulo
-            var cellRotulo = new Word.TableCell(
-                new TableCellProperties(new Shading { Fill = "D9E2F3", Val = ShadingPatternValues.Clear }),
-                new Paragraph(new ParagraphProperties(new Bold()), 
-                    new Run(new RunProperties(new Bold()),
-                        new Text(rotulo) { Space = SpaceProcessingModeValues.Preserve })));
-
-            // Célula do valor
-            var cellValor = new Word.TableCell(
-                new Paragraph(
-                    new Run(new RunProperties(
-                        new RunFonts { Ascii = "Arial", HighAnsi = "Arial" },
-                        new FontSize { Val = "22" }),
-                        new Text(valor) { Space = SpaceProcessingModeValues.Preserve })));
-
-            row.Append(cellRotulo, cellValor);
-            table.Append(row);
-        }
-
-        private static void InsertarImagensDoAtivo(WordprocessingDocument documento, Word.Paragraph paragrafAnterior, string caminhoFotos)
-        {
-            // TODO: Implementar inserção de imagens
-            // Esta função será implementada quando a estrutura do template estiver finalizada
-            // Por enquanto, apenas adiciona um parágrafo indicando que há fotos
-            try
+            var imagePart = mainPart.AddImagePart(tipoImagem);
+            using (var stream = new FileStream(caminhoArquivo, FileMode.Open, FileAccess.Read))
             {
-                if (!string.IsNullOrEmpty(caminhoFotos))
-                {
-                    var paragrafFoto = new Word.Paragraph(
-                        new Run(new Text($"[Fotos disponíveis em: {caminhoFotos}]")));
-                    paragrafAnterior.InsertAfterSelf(paragrafFoto);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Erro ao inserir referência de imagens: {ex.Message}");
-            }
-        }
-
-        private static void AdicionarImagemAoParagrafo(WordprocessingDocument documento, Word.Paragraph paragrafAnterior, string caminhoImagem)
-        {
-            // Função mantida para referência futura
-            // TODO: Implementar inserção de imagens JPEG/PNG em documentos Word
-        }
-
-        private static void AdicionarSecaoBensVistoriados(Body body, IReadOnlyList<Ativo> ativos)
-        {
-            var sectionProperties = body.Elements<SectionProperties>().LastOrDefault();
-
-            void Append(OpenXmlElement element)
-            {
-                if (sectionProperties != null)
-                    body.InsertBefore(element, sectionProperties);
-                else
-                    body.Append(element);
+                imagePart.FeedData(stream);
             }
 
-            Append(new Paragraph(new Run(new Break { Type = BreakValues.Page })));
-            Append(CriarParagrafo("Anexo II - Bens com vistoria realizada", bold: true, center: true, fontSize: "24"));
-            Append(CriarParagrafo(
-                $"Relatório gerado automaticamente em {DateTime.Now:dd/MM/yyyy HH:mm}. Total de bens vistoriados: {ativos.Count}.",
-                fontSize: "18"));
-            Append(CriarTabelaBens(ativos));
+            string relId = mainPart.GetIdOfPart(imagePart);
+
+            long larguraEmu = 2160000;
+            long alturaEmu = 1620000;
+
+            var elementoDrawing = new Word.Drawing(
+                new DW.Inline(
+                    new DW.Extent() { Cx = larguraEmu, Cy = alturaEmu },
+                    new DW.EffectExtent() { LeftEdge = 0L, TopEdge = 0L, RightEdge = 0L, BottomEdge = 0L },
+                    new DW.DocProperties() { Id = (UInt32Value)1U, Name = Path.GetFileName(caminhoArquivo) },
+                    new DW.NonVisualGraphicFrameDrawingProperties(new A.GraphicFrameLocks() { NoChangeAspect = true }),
+                    new A.Graphic(
+                        new A.GraphicData(
+                            new PIC.Picture(
+                                new PIC.NonVisualPictureProperties(
+                                    new PIC.NonVisualDrawingProperties() { Id = (UInt32Value)2U, Name = "FotoVistoria" },
+                                    new PIC.NonVisualPictureDrawingProperties()),
+                                new PIC.BlipFill(
+                                    new A.Blip() { Embed = relId, CompressionState = A.BlipCompressionValues.Print },
+                                    new A.Stretch(new A.FillRectangle())),
+                                new PIC.ShapeProperties(
+                                    new A.Transform2D(
+                                        new A.Offset() { X = 0L, Y = 0L },
+                                        new A.Extents() { Cx = larguraEmu, Cy = alturaEmu }),
+                                    new A.PresetGeometry(new A.AdjustValueList()) { Preset = A.ShapeTypeValues.Rectangle }))
+                    ) { Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture" }
+                )
+            ) { DistanceFromTop = 0U, DistanceFromBottom = 0U, DistanceFromLeft = 0U, DistanceFromRight = 0U }
+            );
+
+            // SOLUÇÃO: Em vez de apagar os Runs do parágrafo existente (o que deletava a legenda),
+            // criamos um parágrafo novo, centralizado, e anexamos ele ao final da célula.
+            // Assim o relatório fica com o formato: [Legenda Original] na linha 1 e [Foto] na linha 2.
+            var paragrafoImagem = new Word.Paragraph(
+                new Word.ParagraphProperties(new Word.Justification { Val = Word.JustificationValues.Center }),
+                new Word.Run(elementoDrawing)
+            );
+
+            celula.Append(paragrafoImagem);
         }
 
         private static Paragraph CriarParagrafo(string texto, bool bold = false, bool center = false, string fontSize = "18")
@@ -317,95 +330,6 @@ namespace SistemaVistorias.Controllers
 
             paragraph.Append(new Run(runProperties, new Text(texto) { Space = SpaceProcessingModeValues.Preserve }));
             return paragraph;
-        }
-
-        private static Word.Table CriarTabelaBens(IReadOnlyList<Ativo> ativos)
-        {
-            var table = new Word.Table();
-            table.AppendChild(new TableProperties(
-                new TableWidth { Width = "5000", Type = TableWidthUnitValues.Pct },
-                new TableBorders(
-                    new TopBorder { Val = BorderValues.Single, Size = 4 },
-                    new BottomBorder { Val = BorderValues.Single, Size = 4 },
-                    new LeftBorder { Val = BorderValues.Single, Size = 4 },
-                    new RightBorder { Val = BorderValues.Single, Size = 4 },
-                    new InsideHorizontalBorder { Val = BorderValues.Single, Size = 4 },
-                    new InsideVerticalBorder { Val = BorderValues.Single, Size = 4 })));
-
-            table.AppendChild(new TableGrid(
-                new GridColumn { Width = "450" },
-                new GridColumn { Width = "950" },
-                new GridColumn { Width = "1000" },
-                new GridColumn { Width = "1100" },
-                new GridColumn { Width = "2100" },
-                new GridColumn { Width = "1100" },
-                new GridColumn { Width = "950" },
-                new GridColumn { Width = "900" },
-                new GridColumn { Width = "950" }));
-
-            table.Append(CriarLinha(true,
-                "#",
-                "Patrimônio AGEVAP",
-                "Patrimônio Órgão",
-                "Contrato",
-                "Descrição",
-                "Localização",
-                "Novo estado",
-                "Nº laudo",
-                "Data"));
-
-            for (var i = 0; i < ativos.Count; i++)
-            {
-                var ativo = ativos[i];
-                table.Append(CriarLinha(false,
-                    (i + 1).ToString(CultureInfo.InvariantCulture),
-                    ativo.PatrimonioAgevap,
-                    ativo.PatrimonioOrgaoGestor,
-                    ativo.ContratoGestao,
-                    ativo.Descricao,
-                    ativo.InstalacaoEndereco,
-                    ativo.NovoEstadoConservacao ?? "",
-                    ativo.NumeroLaudo ?? "",
-                    ativo.DataVistoria?.ToString("dd/MM/yyyy") ?? ""));
-            }
-
-            return table;
-        }
-
-        private static Word.TableRow CriarLinha(bool cabecalho, params string[] valores)
-        {
-            var row = new Word.TableRow();
-            foreach (var valor in valores)
-                row.Append(CriarCelula(valor, cabecalho));
-
-            return row;
-        }
-
-        private static Word.TableCell CriarCelula(string texto, bool cabecalho)
-        {
-            var cellProperties = new TableCellProperties(
-                new TableCellMargin(
-                    new TopMargin { Width = "60", Type = TableWidthUnitValues.Dxa },
-                    new BottomMargin { Width = "60", Type = TableWidthUnitValues.Dxa },
-                    new LeftMargin { Width = "70", Type = TableWidthUnitValues.Dxa },
-                    new RightMargin { Width = "70", Type = TableWidthUnitValues.Dxa }));
-
-            if (cabecalho)
-                cellProperties.Append(new Shading { Fill = "D9E2F3", Val = ShadingPatternValues.Clear });
-
-            var paragraph = new Paragraph(new ParagraphProperties(
-                new Justification { Val = cabecalho ? JustificationValues.Center : JustificationValues.Left }));
-
-            var runProperties = new RunProperties(
-                new RunFonts { Ascii = "Arial", HighAnsi = "Arial", ComplexScript = "Arial" },
-                new FontSize { Val = "14" });
-
-            if (cabecalho)
-                runProperties.Append(new Bold(), new BoldComplexScript());
-
-            paragraph.Append(new Run(runProperties, new Text(texto ?? "") { Space = SpaceProcessingModeValues.Preserve }));
-
-            return new Word.TableCell(cellProperties, paragraph);
         }
     }
 }

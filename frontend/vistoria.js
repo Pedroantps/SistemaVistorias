@@ -1,152 +1,121 @@
-// Variáveis globais para guardar a chave do bem
-let patrimonioAtual = "";
-let contratoAtual = "";
+// URL base da sua API
+const API_BASE_URL = 'http://localhost:5158';
 
-// 1. Inicialização: Recupera os dados assim que a página carrega
 document.addEventListener("DOMContentLoaded", () => {
-    const vistoriaSalva = localStorage.getItem("vistoriaEmAndamento");
     
-    // Se não tiver dados inicializados, volta para a tela de busca para evitar erros
-    if (!vistoriaSalva) {
-        window.location.href = "index.html";
-        return;
-    }
+    // ====================================================================
+    // PARTE 1: AUTO-PREENCHIMENTO COM OS DADOS DA BUSCA
+    // ====================================================================
+    const dadosSalvos = localStorage.getItem("vistoriaEmAndamento");
 
-    // Processa os dados recuperados
-    const ativo = JSON.parse(vistoriaSalva);
-    
-    patrimonioAtual = ativo.patrimonioAgevap;
-    contratoAtual = ativo.contratoGestao;
+    if (dadosSalvos) {
+        try {
+            // Converte os dados guardados em texto de volta para um objeto
+            const ativo = JSON.parse(dadosSalvos);
 
-    // Preenche as etiquetas na tela (C# envia propriedades minúsculas no JSON padrão)
-    document.getElementById("lblPatrimonio").innerText = ativo.patrimonioAgevap;
-    document.getElementById("lblContrato").innerText = ativo.contratoGestao;
-    document.getElementById("lblDescricao").innerText = ativo.descricao;
-    document.getElementById("lblCondicao").innerText = ativo.condicaoFuncional;
-    document.getElementById("lblLocalizacao").innerText = ativo.instalacaoEndereco;
-});
+            // Procura os campos no HTML (Certifique-se de que os IDs no seu vistoria.html são estes)
+            const inputPatrimonio = document.getElementById('patrimonioAgevap');
+            const selectContrato = document.getElementById('contratoGestao');
 
-// 2. Envio do Formulário para a API C#
-document.getElementById("formVistoria").addEventListener("submit", async function(evento) {
-    evento.preventDefault(); // Impede a página de recarregar
-    
-    const btnSalvar = document.getElementById("btnSalvar");
-    const alerta = document.getElementById("mensagemAlerta");
-    
-    const novoEstado = document.getElementById("novoEstado").value;
-    const numeroLaudo = document.getElementById("numeroLaudo").value;
-    const arquivos = [
-        document.getElementById("fotoEsquerda"),
-        document.getElementById("fotoDireita"),
-        document.getElementById("fotoFrontal"),
-        document.getElementById("fotoEtiqueta")
-    ];
-
-    const arquivosSelecionados = arquivos.filter(input => input.files.length > 0);
-    if (arquivosSelecionados.length < 4) {
-        alerta.className = "alert alert-warning";
-        alerta.innerText = "Selecione uma foto para cada quadrado: Esquerda, Direita, Frontal e Etiqueta.";
-        alerta.classList.remove("d-none");
-        return;
-    }
-
-    // Prepara os dados no formato multipart/form-data
-    const formData = new FormData();
-    formData.append("patrimonioAgevap", patrimonioAtual);
-    formData.append("contratoGestao", contratoAtual);
-    formData.append("novoEstado", novoEstado);
-    formData.append("numeroLaudo", numeroLaudo);
-
-    // Anexa cada foto selecionada no formulário
-    arquivos.forEach(input => {
-        formData.append("fotos", input.files[0]);
-    });
-
-    // Atualiza botão para estado de carregamento
-    const textoOriginal = btnSalvar.innerHTML;
-    btnSalvar.innerHTML = '<span class="spinner-border spinner-border-sm"></span> A enviar...';
-    btnSalvar.disabled = true;
-    alerta.classList.add("d-none");
-
-    try {
-        // Envia para o nosso Back-end na porta 5158
-        const resposta = await fetch("http://localhost:5158/api/vistorias/registrar", {
-            method: "POST",
-            body: formData
-        });
-
-        const resultado = await resposta.json();
-
-        if (resposta.ok) {
-            alerta.className = "alert alert-success";
-            alerta.innerText = resultado.mensagem;
-            alerta.classList.remove("d-none");
+            if (inputPatrimonio) {
+                // Preenche com o património (usa o AGEVAP ou o fallback do Órgão Gestor)
+                inputPatrimonio.value = ativo.patrimonioAgevap || ativo.patrimonioOrgaoGestor;
+                inputPatrimonio.readOnly = true; // Bloqueia para evitar que o utilizador altere sem querer
+            }
             
-            // Limpa o armazenamento e os campos após sucesso
-            localStorage.removeItem("vistoriaEmAndamento");
-            document.getElementById("formVistoria").reset();
-            
-            // Redireciona de volta após 3 segundos
-            setTimeout(() => {
-                window.location.href = "index.html";
-            }, 3000);
-        } else {
-            alerta.className = "alert alert-danger";
-            alerta.innerText = resultado.mensagem || "Erro ao registrar vistoria.";
-            alerta.classList.remove("d-none");
+            if (selectContrato) {
+                selectContrato.value = ativo.contratoGestao;
+                // Deixa o contrato desativado visualmente (opcional, mas recomendado)
+                selectContrato.style.pointerEvents = 'none';
+                selectContrato.style.backgroundColor = '#e9ecef';
+            }
+        } catch (e) {
+            console.error("Erro ao analisar dados salvos no localStorage:", e);
         }
-    } catch (erro) {
-        alerta.className = "alert alert-danger";
-        alerta.innerText = "Erro de conexão com o servidor. Verifique a sua rede.";
-        alerta.classList.remove("d-none");
-    } finally {
-        btnSalvar.innerHTML = textoOriginal;
-        btnSalvar.disabled = false;
+
+        // Limpa a memória para que uma vistoria futura ou avulsa não venha com dados antigos
+        localStorage.removeItem("vistoriaEmAndamento");
     }
-});
 
-const inputEsquerda = document.getElementById("fotoEsquerda");
-const inputDireita = document.getElementById("fotoDireita");
-const inputFrontal = document.getElementById("fotoFrontal");
-const inputEtiqueta = document.getElementById("fotoEtiqueta");
-
-const previewElementos = [
-    { preview: document.getElementById("previewEsquerda"), input: inputEsquerda },
-    { preview: document.getElementById("previewDireita"), input: inputDireita },
-    { preview: document.getElementById("previewFrontal"), input: inputFrontal },
-    { preview: document.getElementById("previewEtiqueta"), input: inputEtiqueta }
-];
-
-previewElementos.forEach(({ preview, input }) => {
-    const openInput = () => input.click();
-    preview.addEventListener("click", openInput);
-    preview.addEventListener("keydown", event => {
-        if (event.key === "Enter" || event.key === " ") {
+    // ====================================================================
+    // PARTE 2: ENVIO DO FORMULÁRIO E DAS FOTOS PARA A API
+    // ====================================================================
+    const formVistoria = document.getElementById("formVistoria");
+    
+    if (formVistoria) {
+        formVistoria.addEventListener("submit", async function(event) {
+            // Impede a página de recarregar
             event.preventDefault();
-            openInput();
-        }
-    });
 
-    input.addEventListener("change", () => {
-        updatePreview(preview, input.files[0]);
-    });
-});
+            // Procura o botão de submissão e uma div de alerta para mostrar mensagens
+            const btnSubmit = document.getElementById("btnSalvarVistoria") || formVistoria.querySelector('button[type="submit"]');
+            const textoOriginal = btnSubmit.innerHTML;
+            const alerta = document.getElementById("alertaVistoria"); // Se não tiver esta div, crie uma <div id="alertaVistoria"></div> no html
+            
+            // Estado de "A carregar"
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> A guardar...';
+            
+            if(alerta) alerta.classList.add("d-none");
 
-function updatePreview(preview, arquivo) {
-    preview.innerHTML = "";
-    if (arquivo) {
-        const img = document.createElement("img");
-        img.src = URL.createObjectURL(arquivo);
-        img.alt = "Pré-visualização";
-        img.className = "preview-image";
-        preview.appendChild(img);
-    } else {
-        const placeholder = document.createElement("div");
-        placeholder.className = "preview-placeholder";
-        placeholder.innerHTML = `<i class="bi bi-camera-fill"></i><span>${preview.closest('.photo-card').querySelector('.photo-card-label').innerText}</span>`;
-        preview.appendChild(placeholder);
+            // O FormData empacota automaticamente todos os inputs, incluindo os ficheiros das fotos
+            const formData = new FormData(formVistoria);
+
+            // (Hack) Se o select do contrato foi bloqueado, o FormData pode ignorá-lo. 
+            // Vamos garantir que ele é enviado adicionando-o manualmente se faltar:
+            if(!formData.has('contratoGestao')) {
+                const selectContrato = document.getElementById('contratoGestao');
+                if(selectContrato) formData.append('contratoGestao', selectContrato.value);
+            }
+
+            try {
+                // Envia para o backend C# (A rota que criámos no VistoriasController)
+                const resposta = await fetch(`${API_BASE_URL}/api/vistorias/registrar`, {
+                    method: 'POST',
+                    body: formData // NOTA: Nunca defina 'Content-Type' manualmente ao enviar ficheiros (o browser faz isso por si com o boundary correto)
+                });
+
+                const resultado = await resposta.json();
+
+                if (resposta.ok) {
+                    // SUCESSO
+                    if(alerta) {
+                        alerta.className = "alert alert-success mt-3";
+                        alerta.innerHTML = `<i class="bi bi-check-circle-fill me-2"></i> ${resultado.mensagem}`;
+                    } else {
+                        alert(resultado.mensagem);
+                    }
+                    
+                    formVistoria.reset();
+                    
+                    // Redireciona o utilizador de volta para o ecrã de busca após 2.5 segundos
+                    setTimeout(() => {
+                        window.location.href = "index.html";
+                    }, 2500);
+
+                } else {
+                    // ERRO DO BACKEND (Ex: Ativo não encontrado)
+                    if(alerta) {
+                        alerta.className = "alert alert-danger mt-3";
+                        alerta.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2"></i> <strong>Erro:</strong> ${resultado.mensagem}`;
+                    } else {
+                        alert("Erro: " + resultado.mensagem);
+                    }
+                }
+            } catch (error) {
+                // ERRO DE CONEXÃO (Servidor offline)
+                console.error("Erro na requisição HTTP:", error);
+                if(alerta) {
+                    alerta.className = "alert alert-danger mt-3";
+                    alerta.innerHTML = `<i class="bi bi-wifi-off me-2"></i> Falha na comunicação com o servidor. Verifique a ligação.`;
+                } else {
+                    alert("Erro de conexão com o servidor.");
+                }
+            } finally {
+                // Restaura o botão caso o formulário não tenha redirecionado
+                btnSubmit.disabled = false;
+                btnSubmit.innerHTML = textoOriginal;
+            }
+        });
     }
-}
-
-// Inicializa placeholders sem imagens
-previewElementos.forEach(({ preview }) => updatePreview(preview, null));
+});
