@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Busca de Património - Vistorias AGEVAP</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+
+    <style>
+        /* Estilos específicos para a tela de Vistoria (inspirados no seu Index.cshtml) */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f4f8;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 260px;
+            padding: 0;
+            background-color: #ffffff;
+            border-right: 1px solid #e8edf4;
+            overflow-y: auto;
+            z-index: 1030;
+        }
+
+        .sidebar-header {
+            padding: 1.75rem 1.5rem 1rem;
+        }
+
+        .sidebar-content {
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .components {
+            padding-left: 0;
+            margin-bottom: 0;
+        }
+
+        .components li {
+            margin-bottom: 0.35rem;
+        }
+
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.88rem 1rem;
+            border-radius: 14px;
+            color: #344767;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .nav-link-custom:hover,
+        .active > .nav-link-custom {
+            background-color: #f1f4ff;
+            color: #1a2035;
+        }
+
+        .sidebar-button {
+            width: 100%;
+            border: 0;
+            background: transparent;
+            text-align: left;
+        }
+
+        .icon-box {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background-color: #e7ecf6;
+            color: #344767;
+            font-size: 1.1rem;
+        }
+
+        .main-content-wrapper {
+            min-height: 100vh;
+            padding-left: 260px;
+            padding-right: 1rem;
+            transition: padding 0.3s ease;
+        }
+
+        .welcome-header {
+            margin-top: 40px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .welcome-title {
+            font-size: clamp(2rem, 3vw, 2.8rem);
+            font-weight: 800;
+            color: #344767;
+            letter-spacing: -1px;
+        }
+
+        .welcome-subtitle {
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .search-card {
+            background-color: #ffffff;
+            border: 1px solid #eef0f2;
+            border-radius: 20px;
+            padding: 44px 36px;
+            box-shadow: 0 12px 28px rgba(52, 71, 103, 0.08);
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .search-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 18px 36px rgba(52, 71, 103, 0.14);
+        }
+
+        .icon-box-large {
+            width: 88px;
+            height: 88px;
+            background: linear-gradient(135deg, #344767 0%, #1a2035 100%);
+            color: #ffffff;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.7rem;
+            margin: 0 auto 24px auto;
+        }
+
+        .btn-agevap {
+            background-color: #344767;
+            color: white;
+            border: none;
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 14px 22px;
+        }
+
+        .btn-agevap:hover {
+            background-color: #1a2035;
+            color: white;
+        }
+
+        .search-card h4 {
+            color: #344767;
+            font-weight: 700;
+        }
+
+        .search-card .form-label {
+            font-weight: 500;
+            color: #344767;
+        }
+
+        .logo-sidebar {
+            max-width: 140px;
+        }
+
+        .sidebar-content {
+            padding-bottom: 1.5rem;
+        }
+
+        .container {
+            max-width: 1080px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        @@media (max-width: 991.98px) {
+            #sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid #e8edf4;
+            }
+
+            .sidebar-header {
+                padding: 1.5rem 1.25rem 1rem;
+            }
+
+            .sidebar-content {
+                padding: 0 1.25rem 1rem;
+            }
+
+            .nav-link-custom {
+                padding: 0.8rem 0.95rem;
+                gap: 0.75rem;
+            }
+
+            .main-content-wrapper {
+                padding-left: 0;
+                padding-top: 1rem;
+            }
+
+            .welcome-header {
+                margin-top: 28px;
+                margin-bottom: 28px;
+            }
+
+            .search-card {
+                padding: 32px 24px;
+                margin: 0 auto;
+                border-radius: 22px;
+            }
+
+            .icon-box-large {
+                width: 76px;
+                height: 76px;
+                font-size: 2.3rem;
+            }
+        }
+
+        @@media (max-width: 767.98px) {
+            .sidebar-header {
+                padding: 1.15rem 1rem 0.75rem;
+            }
+
+            .sidebar-content {
+                padding: 0 0.95rem 0.95rem;
+            }
+
+            .nav-link-custom {
+                padding: 0.75rem 0.85rem;
+                gap: 0.65rem;
+                font-size: 0.95rem;
+            }
+
+            .welcome-title {
+                font-size: 1.95rem;
+            }
+
+            .search-card {
+                padding: 24px 18px;
+            }
+
+            .icon-box-large {
+                width: 70px;
+                height: 70px;
+                font-size: 2rem;
+            }
+        }
+
+        @@media (max-width: 575.98px) {
+            .sidebar-header {
+                padding: 1rem 0.9rem 0.7rem;
+            }
+
+            .sidebar-content {
+                padding: 0 0.85rem 0.85rem;
+            }
+
+            .nav-link-custom {
+                padding: 0.65rem 0.75rem;
+                gap: 0.5rem;
+                font-size: 0.9rem;
+            }
+
+            .welcome-title {
+                font-size: 1.7rem;
+            }
+
+            .search-card {
+                padding: 20px 16px;
+                border-radius: 20px;
+            }
+
+            .icon-box-large {
+                width: 62px;
+                height: 62px;
+                font-size: 1.75rem;
+            }
+
+            .form-control,
+            .form-select,
+            .btn-agevap {
+                font-size: 0.95rem;
+            }
+        }
+
+        @@media (max-width: 575.98px) {
+            .welcome-title {
+                font-size: 1.75rem;
+            }
+
+            .search-card {
+                padding: 20px 16px;
+                border-radius: 20px;
+            }
+
+            .icon-box-large {
+                width: 62px;
+                height: 62px;
+                font-size: 1.75rem;
+            }
+
+            .form-control,
+            .form-select,
+            .btn-agevap {
+                font-size: 0.95rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav id="sidebar">
+        <div class="sidebar-header text-center pt-3">
+            <img src="/img/logo-agevap.png" alt="Logo" class="logo-sidebar img-fluid px-4" />
+        </div>
+        <div class="sidebar-content mt-4">
+            <ul class="list-unstyled components">
+                <li class="menu-label px-3 text-muted" style="font-size: 0.8rem; font-weight: 600;">VISTORIA DE BENS</li>
+                <li>
+                    <a href="/Home/Dashboard" class="nav-link-custom d-flex align-items-center px-3 py-2 text-decoration-none">
+                        <div class="icon-box me-2"><i class="bi bi-speedometer2"></i></div>
+                        <span class="text text-dark">Dashboard</span>
+                    </a>
+                </li>
+                <li class="active">
+                    <a href="/Home/Index" class="nav-link-custom d-flex align-items-center px-3 py-2 text-decoration-none">
+                        <div class="icon-box me-2"><i class="bi bi-search"></i></div>
+                        <span class="text text-dark">Buscar Património</span>
+                    </a>
+                </li>
+                <li class="menu-label px-3 text-muted mt-4" style="font-size: 0.8rem; font-weight: 600;">ADMINISTRAÇÃO</li>
+                <li>
+                    <a href="/Home/Importacao" class="nav-link-custom d-flex align-items-center px-3 py-2 text-decoration-none">
+                        <div class="icon-box me-2"><i class="bi bi-file-earmark-excel"></i></div>
+                        <span class="text text-dark">Importar Dados</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Usuário logado + Logout -->
+            <div class="mt-auto pt-3" style="border-top: 1px solid #e8edf4; margin-top: auto;">
+                <div class="d-flex align-items-center px-3 py-2">
+                    <div class="icon-box me-2" style="background-color: #344767; color: #fff; width: 36px; height: 36px; font-size: 0.9rem;">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div style="flex: 1; min-width: 0;">
+                        <div id="sidebarUsuario" style="font-size: 0.82rem; font-weight: 600; color: #344767; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Usuário</div>
+                    </div>
+                    <button onclick="realizarLogout()" class="btn btn-sm" style="color: #94a3b8; padding: 4px 8px;" title="Sair">
+                        <i class="bi bi-box-arrow-right" style="font-size: 1.1rem;"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main role="main" class="main-content-wrapper container-fluid">
+        <div class="container py-5">
+            
+            <div class="welcome-header">
+                <h1 class="welcome-title">Sistema de Vistorias</h1>
+                <p class="lead welcome-subtitle">Identifique o bem patrimonial para iniciar o laudo técnico</p>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-md-8 col-lg-6">
+                    <div class="search-card text-center">
+                        <div class="icon-box-large">
+                            <i class="bi bi-qr-code-scan"></i>
+                        </div>
+                        
+                        <h4 class="mb-4" style="color: #344767; font-weight: 700;">Localizar Ativo</h4>
+                        
+                        <div class="mb-3 text-start">
+                            <label for="contratoSelect" class="form-label" style="font-weight: 500; color: #344767;">Contrato de Gestão</label>
+                            <select class="form-select form-select-lg" id="contratoGestao" required>
+                                <option value="" disabled selected>Selecione o Contrato de Gestão...</option>
+                                <option value="CG INEA GUANDU">CG INEA GUANDU</option>
+                                <option value="CG INEA CBHs">CG INEA CBHs</option>
+                                <option value="CG INEA BG">CG INEA BG</option>
+                                <option value="CG INEA Nº 003/2010 - CEDIDO">CG INEA Nº 003/2010 - CEDIDO</option>
+                                <option value="CG INEA Nº 002/2017 - CEDIDO">CG INEA Nº 002/2017 - CEDIDO</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4 text-start">
+                            <label for="patrimonioInput" class="form-label" style="font-weight: 500; color: #344767;">Nº do Património AGEVAP</label>
+                            <input type="text" id="patrimonioInput" class="form-control form-control-lg" placeholder="Digite ou bipe o código...">
+                        </div>
+
+                        <div id="mensagemErro" class="alert alert-danger d-none" role="alert"></div>
+
+                        <button onclick="buscarAtivo()" id="btnBuscar" class="btn btn-agevap btn-lg w-100 shadow-sm">
+                            <i class="bi bi-search me-2"></i> Iniciar Vistoria
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/app.js"></script>
+    <script src="/js/index.js"></script>
+</body>
+</html>
