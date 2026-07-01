@@ -1,0 +1,239 @@
+/* ========================================================
+   COMPONENTS.CSS - Embelezamento das Telas do Sistema
+======================================================== */
+
+/* TIPOGRAFIA E ESTRUTURA GLOBAL */
+.dashboard-shell { max-width: 1440px; width: 100%; min-width: 0; margin: 0 auto; padding: 24px; animation: fadeIn 0.4s ease-out; }
+.page-shell { max-width: 900px; width: 100%; min-width: 0; margin: 0 auto; padding: 40px 28px; animation: fadeIn 0.4s ease-out; }
+.page-title { color: #1e293b; font-size: 2rem; font-weight: 800; margin-bottom: 0.25rem; letter-spacing: -0.5px; }
+.page-subtitle { color: #64748b; margin-bottom: 0; font-size: 0.95rem; }
+
+/* ANIMAÇÃO FADE IN */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* CARDS DE MÉTRICAS (Dashboard) */
+.metric-card, .panel { 
+    background: #ffffff; 
+    border: 1px solid rgba(226, 232, 240, 0.8); 
+    border-radius: 16px; 
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); 
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.metric-card:hover { 
+    transform: translateY(-4px); 
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+}
+.metric-card { padding: 24px; min-height: 140px; }
+.metric-label { color: #64748b; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.metric-value { color: #0f172a; font-size: 2.2rem; font-weight: 800; line-height: 1.1; margin-top: 8px; }
+.metric-icon { width: 48px; height: 48px; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.5rem; }
+
+/* VARIANTES DE CORES DAS MÉTRICAS */
+.metric-total { background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #2563eb; }
+.metric-done { background: linear-gradient(135deg, #f0fdf4, #dcfce7); color: #16a34a; }
+.metric-open { background: linear-gradient(135deg, #fffbeb, #fef3c7); color: #d97706; }
+.metric-rate { background: linear-gradient(135deg, #faf5ff, #f3e8ff); color: #7e22ce; }
+
+/* BARRAS DE PROGRESSO */
+.progress-track { width: 100%; height: 8px; overflow: hidden; border-radius: 999px; background: #e2e8f0; margin-top: 12px; }
+.progress-fill { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #3b82f6, #60a5fa); transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* BADGES DE STATUS (Tabela Dashboard) */
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.status-done {
+    background-color: #dcfce7;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+}
+.status-open {
+    background-color: #fef3c7;
+    color: #d97706;
+    border: 1px solid #fde68a;
+}
+
+/* WRAPPER PARA TABELAS */
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 8px;
+    background: #fff;
+}
+
+/* PAINÉIS E GRÁFICOS DE BARRAS (Contratos / Status) */
+.panel { padding: 24px; margin-bottom: 24px; }
+.panel-title { color: #1e293b; font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; }
+.bar-row { 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+    margin-bottom: 12px; 
+    font-size: 0.85rem; 
+    color: #475569;
+}
+.bar-row > div:first-child { 
+    width: 35%; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    font-weight: 600;
+}
+.bar-row strong { 
+    width: 15%; 
+    text-align: right; 
+    color: #0f172a; 
+}
+.bar-track { 
+    flex-grow: 1; 
+    height: 8px; 
+    background-color: #f1f5f9; 
+    border-radius: 4px; 
+    overflow: hidden; 
+}
+.bar-fill { 
+    height: 100%; 
+    background: linear-gradient(90deg, #94a3b8, #cbd5e1); 
+    border-radius: 4px; 
+    transition: width 1s ease-out;
+}
+/* Cores Alternativas para o Gráfico de Status */
+#estadosLista .bar-fill { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+
+
+/* TELA DE BUSCA DE PATRIMÔNIO (Index) */
+.welcome-header { margin-top: 40px; margin-bottom: 40px; text-align: center; }
+.welcome-title { font-size: clamp(2rem, 3vw, 2.8rem); font-weight: 800; color: #1e293b; letter-spacing: -1px; }
+.welcome-subtitle { color: #64748b; font-weight: 400; }
+.search-card { 
+    background-color: #ffffff; 
+    border: 1px solid rgba(226, 232, 240, 0.8); 
+    border-radius: 24px; 
+    padding: 48px 40px; 
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02); 
+    transition: box-shadow 0.3s ease, transform 0.3s ease; 
+}
+.search-card:hover { transform: translateY(-2px); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1); }
+.icon-box-large { 
+    width: 88px; height: 88px; 
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); 
+    color: #ffffff; border-radius: 22px; 
+    display: flex; align-items: center; justify-content: center; 
+    font-size: 2.7rem; margin: 0 auto 32px auto; 
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.3);
+}
+
+/* BOTÃO PADRÃO AGEVAP */
+.btn-agevap { 
+    background: linear-gradient(135deg, #344767 0%, #1a2035 100%); 
+    color: white; border: none; font-weight: 600; border-radius: 12px; padding: 14px 24px; 
+    transition: all 0.2s ease;
+}
+.btn-agevap:hover { 
+    background: linear-gradient(135deg, #1a2035 0%, #0f172a 100%); 
+    color: white; transform: translateY(-1px); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+}
+
+/* TELA DE VISTORIA */
+.agevap-card { 
+    background-color: #ffffff; border: 1px solid rgba(226, 232, 240, 0.8); 
+    border-radius: 20px; padding: 32px; 
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); margin-bottom: 24px; 
+}
+.agevap-card h5 { color: #1e293b; font-weight: 700; margin-bottom: 24px; }
+.photo-card { 
+    background-color: #f8fafc; border: 1px dashed #cbd5e1; 
+    border-radius: 20px; padding: 16px; min-height: 220px; 
+    display: flex; flex-direction: column; transition: all 0.2s ease;
+}
+.photo-card-label { text-align: center; color: #475569; font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; }
+.photo-card:hover { border-color: #94a3b8; background-color: #f1f5f9; }
+.photo-preview { 
+    flex: 1; background-color: #ffffff; border-radius: 16px; 
+    border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; 
+    overflow: hidden; padding: 12px; cursor: pointer; transition: all 0.2s ease; 
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+.photo-preview:hover { border-color: #cbd5e1; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transform: scale(1.02); }
+.preview-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; gap: 8px; }
+.preview-placeholder i { font-size: 2rem; color: #94a3b8; }
+.preview-placeholder span { font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+.preview-image { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+
+/* TELA DE IMPORTAÇÃO */
+.upload-card { 
+    background: #ffffff; border: 1px solid rgba(226, 232, 240, 0.8); 
+    border-radius: 16px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05); 
+    padding: 40px; margin-top: 24px; text-align: center;
+}
+.upload-area { 
+    border: 2px dashed #94a3b8; border-radius: 12px; padding: 48px 24px; 
+    background-color: #f8fafc; transition: all 0.2s ease; cursor: pointer; 
+}
+.upload-area:hover, .upload-area.dragover { 
+    border-color: #3b82f6; background-color: #eff6ff; 
+}
+.upload-icon { font-size: 3.5rem; color: #64748b; margin-bottom: 20px; transition: color 0.2s ease; }
+/* RESPONSIVIDADE ADICIONAL */
+@media (max-width: 768px) {
+    .dashboard-shell, .page-shell { padding: 12px; }
+    .metric-card, .panel, .agevap-card, .upload-card, .search-card { padding: 16px; }
+    .page-title, .welcome-title { font-size: 1.6rem; }
+    .metric-value { font-size: 1.8rem; }
+    .icon-box-large { width: 64px; height: 64px; font-size: 2rem; margin-bottom: 20px; }
+    .d-flex.gap-2 { flex-wrap: wrap; }
+    .d-flex.gap-2 button { width: 100%; } /* Botões ocupam 100% no mobile */
+}
+@media (max-width: 480px) {
+    .metric-card { min-height: 120px; }
+    .metric-label { font-size: 0.75rem; }
+    .metric-value { font-size: 1.5rem; }
+}
+
+/* ========================================================
+   GLOBAL FORM STYLES (Inputs & Selects)
+======================================================== */
+.form-select, .form-control {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+    color: #334155;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+    min-height: 48px; /* Touch target excellence */
+    appearance: none; /* For selects */
+}
+
+/* Add custom chevron for selects */
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px 12px;
+    padding-right: 40px;
+}
+
+.form-select:focus, .form-control:focus {
+    border-color: #3b82f6;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+.form-select:hover, .form-control:hover {
+    border-color: #94a3b8;
+}
+
+

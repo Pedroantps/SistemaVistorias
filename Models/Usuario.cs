@@ -1,8 +1,10 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace SistemaVistorias.Models
 {
+    /// <summary>
+    /// Entidade que representa um usuário do sistema de vistorias.
+    /// </summary>
     public class Usuario
     {
         [Key]

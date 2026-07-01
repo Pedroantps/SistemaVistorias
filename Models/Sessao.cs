@@ -1,8 +1,11 @@
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace SistemaVistorias.Models
 {
+    /// <summary>
+    /// Entidade que armazena os tokens de sessão ativos de um usuário autenticado.
+    /// Utilizado para controle de múltiplos acessos e revogação no logout.
+    /// </summary>
     public class Sessao
     {
         [Key]

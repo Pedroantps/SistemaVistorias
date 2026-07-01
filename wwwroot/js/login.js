@@ -75,61 +75,48 @@ function alternarModo(e) {
     modoRegistro = !modoRegistro;
     ocultarAlerta();
 
-    const titulo = document.getElementById('tituloCard');
-    const subtitulo = document.getElementById('subtituloCard');
+    const titulo = document.getElementById('formTitle');
     const btn = document.getElementById('btnSubmit');
     const footerTexto = document.getElementById('footerTexto');
     const link = document.getElementById('linkAlternar');
     const camposExtras = document.querySelectorAll('.registro-extra');
 
     if (modoRegistro) {
-        titulo.textContent = 'Criar nova conta';
-        subtitulo.textContent = 'Preencha os dados para registrar seu acesso';
-        btn.innerHTML = '<i class="bi bi-person-plus me-2"></i>Registrar';
-        footerTexto.textContent = 'Já tem conta? ';
-        link.textContent = 'Fazer login';
-        camposExtras.forEach(el => el.classList.add('visivel'));
+        if (titulo) titulo.textContent = 'Criar nova conta';
+        if (btn) btn.innerHTML = 'Registrar';
+        if (footerTexto) footerTexto.textContent = 'Já tem conta? ';
+        if (link) link.textContent = 'Fazer login';
+        camposExtras.forEach(el => el.classList.add('active'));
     } else {
-        titulo.textContent = 'Bem-vindo de volta';
-        subtitulo.textContent = 'Entre com suas credenciais para acessar o sistema';
-        btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i>Entrar';
-        footerTexto.textContent = 'Não tem conta? ';
-        link.textContent = 'Criar conta';
-        camposExtras.forEach(el => el.classList.remove('visivel'));
+        if (titulo) titulo.textContent = 'Entrar';
+        if (btn) btn.innerHTML = 'Entrar';
+        if (footerTexto) footerTexto.textContent = 'Não tem conta? ';
+        if (link) link.textContent = 'Criar conta';
+        camposExtras.forEach(el => el.classList.remove('active'));
     }
 }
-
-// ---- Toggle Visibilidade Senha ----
-function toggleSenha() {
-    const input = document.getElementById('inputSenha');
-    const icone = document.getElementById('iconeSenha');
-    if (input.type === 'password') {
-        input.type = 'text';
-        icone.className = 'bi bi-eye-slash';
-    } else {
-        input.type = 'password';
-        icone.className = 'bi bi-eye';
-    }
-}
-
 // ---- Alertas ----
 function mostrarAlerta(mensagem, tipo) {
-    const el = document.getElementById('loginAlerta');
+    const el = document.getElementById('alertaLogin');
     const icone = document.getElementById('alertaIcone');
     const texto = document.getElementById('alertaTexto');
 
-    el.className = 'login-alert visivel';
-    if (tipo === 'sucesso') {
-        el.classList.add('alert-sucesso');
-        icone.className = 'bi bi-check-circle-fill';
-    } else {
-        el.classList.add('alert-erro');
-        icone.className = 'bi bi-exclamation-circle-fill';
+    if (el) {
+        el.className = 'alert'; // remove d-none
+        if (tipo === 'sucesso') {
+            el.classList.add('alert-success');
+            if(icone) icone.className = 'fas fa-check-circle';
+        } else {
+            el.classList.add('alert-danger');
+            if(icone) icone.className = 'fas fa-exclamation-circle';
+        }
+        if(texto) texto.textContent = mensagem;
     }
-    texto.textContent = mensagem;
 }
 
 function ocultarAlerta() {
-    const el = document.getElementById('loginAlerta');
-    el.className = 'login-alert';
+    const el = document.getElementById('alertaLogin');
+    if (el) {
+        el.className = 'alert d-none';
+    }
 }

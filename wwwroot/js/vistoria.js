@@ -1,10 +1,17 @@
-const API_BASE_URL = 'http://localhost:5158';
-
+/**
+ * Carrega os dados da vistoria em andamento a partir do LocalStorage.
+ * Executado ao carregar a página de vistoria (Vistoria.cshtml).
+ */
 document.addEventListener("DOMContentLoaded", () => {
     
-    // ====================================================================
-    // PARTE 1: AUTO-PREENCHIMENTO COM OS DADOS DA BUSCA
-    // ====================================================================
+    /**
+     * Recupera os dados parciais de uma vistoria do LocalStorage e hidrata o formulário de preenchimento.
+     * 
+     * Por que usamos LocalStorage aqui? 
+     * Como o fluxo de vistoria pode ser interrompido acidentalmente (ou recarregado pela navegação), 
+     * persistir o estado localmente evita que o vistoriador perca todo o preenchimento de dados de um ativo.
+     * Após o preenchimento bem-sucedido na tela, os dados são ejetados do armazenamento para evitar sujeira.
+     */
     const dadosSalvos = localStorage.getItem("vistoriaEmAndamento");
 
     if (dadosSalvos) {
@@ -66,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     const fotos = ativo.caminhoFotos.split(';');
                     
                     fotos.forEach(fotoPath => {
-                        const baseUrl = 'http://localhost:5158/fotos_vistorias/';
+                        const baseUrl = '/fotos_vistorias/';
                         const imageUrl = baseUrl + fotoPath;
                         
                         // Determinar qual div de preview atualizar com base no nome do arquivo
@@ -93,9 +100,10 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.removeItem("vistoriaEmAndamento");
     }
 
-    // ====================================================================
-    // PARTE 2: LÓGICA DOS QUADRADOS DE FOTO (CÂMERA/PREVIEW)
-    // ====================================================================
+    /**
+     * Vincula eventos de clique aos componentes visuais (previews) 
+     * para abrir o seletor nativo de arquivos do sistema.
+     */
     const photoPreviews = document.querySelectorAll('.photo-preview');
 
     photoPreviews.forEach(preview => {
@@ -123,9 +131,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // ====================================================================
-    // PARTE 3: ENVIO DO FORMULÁRIO PARA A API
-    // ====================================================================
+    /**
+     * Intercepta o envio do formulário, empacota os dados via FormData (incluindo binários) 
+     * e os envia ao backend, lidando com os estados de carregamento (UI feedback).
+     */
     const formVistoria = document.getElementById("formVistoria");
     
     if (formVistoria) {
@@ -145,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const formData = new FormData(formVistoria);
 
             try {
-                const resposta = await fetch(`${API_BASE_URL}/api/vistorias/registrar`, {
+                const resposta = await fetch(`/api/vistorias/registrar`, {
                     method: 'POST',
                     headers: obterHeadersAutenticados(),
                     body: formData 

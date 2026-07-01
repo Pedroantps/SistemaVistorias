@@ -2,14 +2,15 @@ using Microsoft.EntityFrameworkCore;
 using SistemaVistorias.Data;
 using SistemaVistorias.Models;
 using SistemaVistorias.Models.DTOs;
-using System;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SistemaVistorias.Services
 {
+    /// <summary>
+    /// Serviço central para gerenciar a lógica de autenticação.
+    /// Lida com hash de senhas, validação de tokens JWT e gestão de sessões ativas no banco.
+    /// </summary>
     public class AuthService : IAuthService
     {
         private readonly AppDbContext _context;
@@ -128,6 +129,16 @@ namespace SistemaVistorias.Services
                 : authorization.Trim();
         }
 
+        /// <summary>
+        /// Converte a senha fornecida em um hash SHA-256 irreversível.
+        /// </summary>
+        /// <remarks>
+        /// Usamos SHA-256 para garantir que a credencial original nunca seja armazenada em texto plano 
+        /// no banco de dados. O hash resultante é representado em hexadecimal minúsculo (64 caracteres),
+        /// garantindo compatibilidade com qualquer collation do MariaDB.
+        /// </remarks>
+        /// <param name="senha">A senha em texto plano recebida do formulário de login/registro.</param>
+        /// <returns>String hexadecimal de 64 caracteres representando o hash SHA-256 da senha.</returns>
         private static string GerarHash(string senha)
         {
             using var sha = SHA256.Create();

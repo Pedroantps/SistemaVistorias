@@ -1,438 +1,122 @@
+@{
+    Layout = null;
+}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Sistema de Vistorias AGEVAP</title>
-    <meta name="description" content="Acesse o Sistema de Vistorias de Patrimônio da AGEVAP" />
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="/css/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true" />
     <style>
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
         body {
-            font-family: 'Inter', sans-serif;
+            background-color: #f1f4f8;
+            font-family: "Roboto", sans-serif;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #334155 100%);
-            overflow: hidden;
-            position: relative;
         }
-
-        /* Efeito de partículas de fundo */
-        body::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(99, 102, 241, 0.06) 0%, transparent 50%),
-                        radial-gradient(circle at 50% 50%, rgba(14, 165, 233, 0.04) 0%, transparent 50%);
-            animation: ambientShift 20s ease-in-out infinite alternate;
-            pointer-events: none;
-        }
-
-        @@keyframes ambientShift {
-            0%   { transform: translate(0, 0) rotate(0deg); }
-            100% { transform: translate(-30px, 20px) rotate(3deg); }
-        }
-
-        /* Container principal */
-        .login-container {
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 440px;
-            padding: 0 20px;
-        }
-
-        /* Logo */
-        .login-logo {
-            text-align: center;
-            margin-bottom: 32px;
-        }
-
-        .login-logo img {
-            max-width: 160px;
-            filter: brightness(0) invert(1);
-            opacity: 0.92;
-        }
-
-        .login-logo-text {
-            color: rgba(255, 255, 255, 0.55);
-            font-size: 0.82rem;
-            font-weight: 500;
-            letter-spacing: 2.5px;
-            text-transform: uppercase;
-            margin-top: 10px;
-        }
-
-        /* Card principal */
-        .login-card {
-            background: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 44px 36px 36px;
-            box-shadow: 0 32px 64px rgba(0, 0, 0, 0.3),
-                        0 0 0 1px rgba(255, 255, 255, 0.05) inset;
-            animation: cardAppear 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        @@keyframes cardAppear {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .login-card h1 {
-            color: #ffffff;
-            font-size: 1.6rem;
-            font-weight: 700;
-            margin-bottom: 6px;
-            text-align: center;
-        }
-
-        .login-card .subtitle {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.88rem;
-            text-align: center;
-            margin-bottom: 32px;
-        }
-
-        /* Campos */
-        .form-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .form-group label {
-            display: block;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.82rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-            letter-spacing: 0.3px;
-        }
-
-        .input-wrapper {
-            position: relative;
-        }
-
-        .input-wrapper i {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255, 255, 255, 0.3);
-            font-size: 1.05rem;
-            transition: color 0.2s ease;
-            pointer-events: none;
-        }
-
-        .form-input {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 14px;
-            padding: 14px 16px 14px 48px;
-            color: #ffffff;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 400;
-            transition: all 0.25s ease;
-            outline: none;
-        }
-
-        .form-input::placeholder {
-            color: rgba(255, 255, 255, 0.25);
-        }
-
-        .form-input:focus {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(99, 102, 241, 0.6);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-        }
-
-        .form-input:focus + i,
-        .form-input:focus ~ i {
-            color: rgba(99, 102, 241, 0.8);
-        }
-
-        /* Toggle senha */
-        .toggle-senha {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.3);
-            cursor: pointer;
-            padding: 4px;
-            font-size: 1.1rem;
-            transition: color 0.2s ease;
-        }
-
-        .toggle-senha:hover {
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        /* Botão de Login */
-        .btn-login {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 50%, #818cf8 100%);
-            background-size: 200% 200%;
-            border: none;
-            border-radius: 14px;
-            color: #ffffff;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            margin-top: 8px;
-        }
-
-        .btn-login::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .btn-login:hover:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.4);
-            background-position: 100% 100%;
-        }
-
-        .btn-login:hover::before {
-            opacity: 1;
-        }
-
-        .btn-login:active:not(:disabled) {
-            transform: translateY(0);
-        }
-
-        .btn-login:disabled {
-            opacity: 0.65;
-            cursor: not-allowed;
-        }
-
-        .btn-login .spinner-border {
-            width: 18px;
-            height: 18px;
-            border-width: 2px;
-            vertical-align: middle;
-            margin-right: 8px;
-        }
-
-        /* Alertas */
-        .login-alert {
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            margin-bottom: 20px;
-            display: none;
-            align-items: center;
-            gap: 10px;
-            animation: alertSlide 0.3s ease;
-        }
-
-        @@keyframes alertSlide {
-            from { opacity: 0; transform: translateY(-8px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .login-alert.alert-erro {
-            background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.25);
-            color: #fca5a5;
-        }
-
-        .login-alert.alert-sucesso {
-            background: rgba(34, 197, 94, 0.15);
-            border: 1px solid rgba(34, 197, 94, 0.25);
-            color: #86efac;
-        }
-
-        .login-alert.visivel {
-            display: flex;
-        }
-
-        /* Separador */
-        .login-separador {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin: 28px 0;
-        }
-
-        .login-separador::before,
-        .login-separador::after {
-            content: '';
-            flex: 1;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .login-separador span {
-            color: rgba(255, 255, 255, 0.3);
-            font-size: 0.78rem;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        /* Link de registro */
-        .login-footer {
-            text-align: center;
-            margin-top: 24px;
-        }
-
-        .login-footer span {
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 0.85rem;
-        }
-
-        .login-footer a {
-            color: #818cf8;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: color 0.2s ease;
-        }
-
-        .login-footer a:hover {
-            color: #a5b4fc;
-        }
-
-        /* ---- Formulário de Registro (oculto por padrão) ---- */
+        
         .registro-extra {
             display: none;
         }
 
-        .registro-extra.visivel {
+        .registro-extra.active {
             display: block;
         }
+        
+        .auth-form-container {
+            width: 100%;
+            max-width: 400px;
+        }
 
-        /* Responsivo */
-        @@media (max-width: 480px) {
-            .login-card {
-                padding: 32px 24px 28px;
-                border-radius: 20px;
-            }
-
-            .login-card h1 {
-                font-size: 1.35rem;
-            }
-
-            .login-logo img {
-                max-width: 130px;
-            }
-
-            .form-input {
-                padding: 12px 14px 12px 44px;
-                font-size: 0.9rem;
-            }
-
-            .btn-login {
-                padding: 13px;
-            }
+        #alertaLogin {
+            margin-bottom: 15px;
+            font-size: 13px;
+            text-align: left;
+        }
+        
+        .login-logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .login-logo img {
+            max-width: 140px;
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <!-- Logo -->
-        <div class="login-logo">
-            <img src="/img/logo-agevap.png" alt="Logo AGEVAP" />
-            <div class="login-logo-text">Sistema de Vistorias</div>
-        </div>
-
-        <!-- Card -->
-        <div class="login-card">
-            <h1 id="tituloCard">Bem-vindo de volta</h1>
-            <p class="subtitle" id="subtituloCard">Entre com suas credenciais para acessar o sistema</p>
-
-            <!-- Alerta -->
-            <div class="login-alert" id="loginAlerta" role="alert">
-                <i class="bi bi-exclamation-circle-fill" id="alertaIcone"></i>
-                <span id="alertaTexto"></span>
+    <div class="auth-form-container">
+        <div class="auth-form">
+            <div class="login-logo">
+                <img src="/imgs/logo-agevap.png" alt="AGEVAP">
             </div>
-
-            <!-- Formulário -->
             <form id="formLogin" autocomplete="on">
-                <!-- Campo extra para registro: Nome Completo -->
-                <div class="form-group registro-extra" id="campoNomeCompleto">
-                    <label for="inputNomeCompleto">Nome completo</label>
-                    <div class="input-wrapper">
-                        <input type="text" id="inputNomeCompleto" class="form-input" placeholder="Seu nome completo" autocomplete="name" />
-                        <i class="bi bi-person-badge"></i>
-                    </div>
+                <h4 id="formTitle">Entrar</h4>
+                <hr />
+                
+                <div id="alertaLogin" class="alert d-none" role="alert" style="padding: 10px;">
+                    <i class="bi bi-exclamation-circle me-2" id="alertaIcone"></i>
+                    <span id="alertaTexto"></span>
                 </div>
 
-                <div class="form-group">
-                    <label for="inputUsuario">Nome de usuário</label>
-                    <div class="input-wrapper">
-                        <input type="text" id="inputUsuario" class="form-input" placeholder="Digite seu usuário" required autocomplete="username" />
-                        <i class="bi bi-person"></i>
-                    </div>
+                <div class="mb-3 auth-tbox registro-extra" id="campoNomeCompleto">
+                    <input type="text" id="inputNomeCompleto" class="form-control auth-tbox" placeholder="Nome completo" autocomplete="name" />
                 </div>
 
-                <div class="form-group">
-                    <label for="inputSenha">Senha</label>
-                    <div class="input-wrapper">
-                        <input type="password" id="inputSenha" class="form-input" placeholder="Digite sua senha" required autocomplete="current-password" />
-                        <i class="bi bi-lock"></i>
-                        <button type="button" class="toggle-senha" onclick="toggleSenha()" aria-label="Mostrar/ocultar senha">
-                            <i class="bi bi-eye" id="iconeSenha"></i>
-                        </button>
-                    </div>
+                <div class="mb-3 auth-tbox">
+                    <input type="text" id="inputUsuario" class="form-control auth-tbox" placeholder="Usuário" required autocomplete="username" />
+                </div>
+                
+                <div class="mb-3 position-relative">
+                    <input type="password" id="inputSenha" class="form-control auth-tbox pr-5" placeholder="Senha" required autocomplete="current-password" />
+                    <i class="bi bi-eye toggle-password position-absolute" style="right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.1rem;" id="iconeSenha" onclick="toggleSenha()"></i>
                 </div>
 
-                <!-- Campo extra para registro: Confirmar Senha -->
-                <div class="form-group registro-extra" id="campoConfirmarSenha">
-                    <label for="inputConfirmarSenha">Confirmar senha</label>
-                    <div class="input-wrapper">
-                        <input type="password" id="inputConfirmarSenha" class="form-input" placeholder="Repita a senha" autocomplete="new-password" />
-                        <i class="bi bi-lock-fill"></i>
-                    </div>
+                <div class="mb-3 position-relative registro-extra" id="campoConfirmarSenha">
+                    <input type="password" id="inputConfirmarSenha" class="form-control auth-tbox" placeholder="Confirmar senha" autocomplete="new-password" />
                 </div>
 
-                <button type="submit" class="btn-login" id="btnSubmit">
-                    <i class="bi bi-box-arrow-in-right me-2"></i>Entrar
-                </button>
+                <div class="mb-3">
+                    <button type="submit" id="btnSubmit" class="w-100 btn btn-lg btn-primary">Entrar</button>
+                </div>
+                
+                <div class="message mt-4">
+                    <p>
+                        <span id="footerTexto">Não tem conta? </span>
+                        <a href="#" id="linkAlternar" onclick="alternarModo(event)">Criar conta</a>
+                    </p>
+                </div>
             </form>
-
-            <div class="login-footer">
-                <span id="footerTexto">Não tem conta? </span>
-                <a href="#" id="linkAlternar" onclick="alternarModo(event)">Criar conta</a>
-            </div>
         </div>
     </div>
 
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/auth.js"></script>
     <script src="/js/login.js"></script>
+    <script>
+        function toggleSenha() {
+            const inputSenha = document.getElementById('inputSenha');
+            const icone = document.getElementById('iconeSenha');
+            
+            if (inputSenha.type === 'password') {
+                inputSenha.type = 'text';
+                icone.classList.remove('bi-eye');
+                icone.classList.add('bi-eye-slash');
+            } else {
+                inputSenha.type = 'password';
+                icone.classList.remove('bi-eye-slash');
+                icone.classList.add('bi-eye');
+            }
+        }
+        
+        window.toggleSenha = toggleSenha;
+    </script>
 </body>
 </html>

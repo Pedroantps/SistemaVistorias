@@ -2,8 +2,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace SistemaVistorias.Controllers
 {
+    /// <summary>
+    /// Controller responsável por servir as Views (telas HTML) do sistema.
+    /// As rotas de navegação principal do usuário passam por aqui.
+    /// </summary>
     public class HomeController : Controller
     {
+        /// <summary>
+        /// Retorna a view da página de login.
+        /// </summary>
         public IActionResult Login()
         {
             return View();
@@ -25,11 +32,6 @@ namespace SistemaVistorias.Controllers
         }
 
         public IActionResult Vistoria()
-        {
-            return View();
-        }
-
-        public IActionResult Teste()
         {
             return View();
         }

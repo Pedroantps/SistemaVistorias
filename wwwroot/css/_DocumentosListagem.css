@@ -1,0 +1,409 @@
+/* _DocumentosListagem.css */
+
+/* --- ESTRUTURA PRINCIPAL --- */
+.dashboard-card {
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    padding: 25px;
+    border: 1px solid #eef0f2;
+}
+
+/* Títulos */
+.page-title {
+    font-weight: 800;
+    color: #344767;
+    font-size: 2.2rem;
+    margin-bottom: 0.2rem;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+}
+
+.page-subtitle {
+    color: #8392ab;
+    font-size: 1.1rem;
+    font-weight: 400;
+}
+
+/* --- CONTROLES DE FORMULÁRIO --- */
+
+.force-height-45 {
+    height: 45px !important;
+    min-height: 45px !important;
+    display: flex;
+    align-items: center;
+}
+
+.filter-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #8392ab;
+    margin-bottom: 6px;
+    display: block;
+    text-transform: uppercase;
+}
+
+/* INPUT GROUPS E FILTROS */
+.input-group {
+    flex-wrap: nowrap;
+    width: 100%;
+}
+
+    .input-group .form-select {
+        border: 1px solid #d2d6da;
+        border-radius: 8px;
+        color: #495057;
+        font-size: 0.9rem;
+    }
+
+        .input-group .form-select:focus {
+            border-color: #344767;
+            box-shadow: 0 0 0 0.2rem rgba(52, 71, 103, 0.15);
+            z-index: 2;
+        }
+
+        .input-group .form-select:not(:last-child) {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            border-right: none;
+        }
+
+/* Botão X */
+.btn-clear-filter {
+    border: 1px solid #d2d6da;
+    border-left: 1px solid #e9ecef;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    background-color: #fff;
+    color: #dc3545;
+    width: 45px;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+    .btn-clear-filter:hover {
+        background-color: #dc3545;
+        color: white;
+        border-color: #dc3545;
+    }
+
+/* Pesquisa */
+.input-group-text {
+    background-color: #fff;
+    border: 1px solid #d2d6da;
+    border-right: none;
+    color: #8392ab;
+    justify-content: center;
+    width: 45px;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+}
+
+.search-input {
+    border: 1px solid #d2d6da;
+    border-left: none;
+    box-shadow: none !important;
+}
+
+.btn-search-confirm {
+    border-radius: 0 8px 8px 0;
+}
+
+.btn-clear-search {
+    border: 1px solid #d2d6da;
+    border-left: none;
+    background-color: #fff;
+    color: #dc3545;
+    z-index: 4;
+}
+
+/* Botões */
+.btn {
+    border-radius: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary {
+    background-color: #344767;
+    border-color: #344767;
+}
+
+    .btn-primary:hover {
+        background-color: #232d45;
+    }
+
+/* --- CHECKBOX --- */
+.checkbox-card {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 0 15px;
+    display: inline-flex;
+    align-items: center;
+    margin-right: 15px;
+}
+
+.form-check-input {
+    -webkit-appearance: checkbox !important;
+    -moz-appearance: checkbox !important;
+    appearance: checkbox !important;
+    opacity: 1 !important;
+    width: 1.2em !important;
+    height: 1.2em !important;
+    margin: 0 !important;
+    margin-right: 10px !important;
+    cursor: pointer;
+    border: 1px solid #b0b8c4 !important;
+    position: static !important;
+}
+
+.form-check-label {
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 0;
+    line-height: 1;
+    padding-top: 2px;
+}
+
+/* --- TABELA (AJUSTADA PARA EXIBIR DROPDOWN) --- */
+.table-responsive {
+    overflow-y: visible !important;
+    overflow-x: auto;
+    min-height: 400px;
+    border: none;
+    box-shadow: none;
+}
+
+/* Media Query Mobile */
+@media (max-width: 992px) {
+    .table-responsive {
+        overflow-x: auto !important;
+    }
+}
+
+
+
+.table-clean {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 0;
+    border: 1px solid #eef0f2;
+    /* REMOVIDO: border-radius e overflow para permitir que o menu "vaze" */
+}
+
+    /* Cabeçalho */
+    .table-clean thead th {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: #ffffff !important;
+        background-color: #344767;
+        font-weight: 700;
+        border: none;
+        padding: 18px 15px;
+        vertical-align: middle;
+        letter-spacing: 0.5px;
+        text-align: center !important;
+    }
+
+    /* Corpo */
+    .table-clean tbody td {
+        padding: 15px 15px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f0f2f5;
+        color: #67748e;
+        font-size: 0.9rem;
+        text-align: center !important;
+    }
+
+    .table-clean tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+.cell-nowrap {
+    white-space: nowrap;
+}
+
+.cell-truncate {
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+@media (max-width: 767.98px) {
+    .cell-truncate {
+        max-width: 150px; /* Menor no celular */
+        text-align: right;
+    }
+}
+
+/* --- STATUS ICONS --- */
+.status-icon {
+    font-size: 1.3rem;
+    cursor: help;
+    transition: transform 0.2s;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+    .status-icon:hover {
+        transform: scale(1.2);
+    }
+
+.icon-ativo {
+    color: #2dce89;
+}
+
+.icon-inativo {
+    color: #f5365c;
+}
+
+.icon-revisao {
+    color: #11cdef;
+}
+
+.icon-aguard {
+    color: #fb6340;
+}
+
+.icon-pendente {
+    color: #ffbc00;
+}
+
+.btn-actions-dropdown {
+    background-color: #344767;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 0 15px;
+    border-radius: 6px;
+    white-space: nowrap;
+    height: 36px;
+    border: none;
+}
+
+@media (max-width: 767.98px) {
+    .btn-actions-dropdown, .btn-sm {
+        min-height: 44px; /* Touch target size */
+        min-width: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+    .btn-actions-dropdown:hover {
+        background-color: #232d45;
+        color: white;
+    }
+
+.dropdown-menu {
+    z-index: 1050 !important; /* Ajustado para não sobrepor modais */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 8px;
+    text-align: left;
+}
+
+/* --- CUSTOMIZAÇÃO DATATABLES --- */
+
+.dataTables_wrapper {
+    padding-top: 10px;
+}
+
+    /* Inputs de Pesquisa e Quantidade */
+    .dataTables_wrapper .dataTables_filter input,
+    .dataTables_wrapper .dataTables_length select {
+        border: 1px solid #d2d6da !important;
+        border-radius: 8px !important;
+        padding: 6px 12px !important;
+        color: #495057 !important;
+        outline: none !important;
+        margin-left: 5px !important;
+        background-color: #fff !important;
+        min-height: 38px;
+    }
+
+        .dataTables_wrapper .dataTables_filter input:focus,
+        .dataTables_wrapper .dataTables_length select:focus {
+            border-color: #344767 !important;
+            box-shadow: 0 0 0 0.2rem rgba(52, 71, 103, 0.15) !important;
+        }
+
+    /* Texto Informativo */
+    .dataTables_wrapper .dataTables_info {
+        color: #8392ab !important;
+        font-size: 0.85rem;
+        padding-top: 20px !important;
+    }
+
+    /* Paginação */
+    .dataTables_wrapper .dataTables_paginate {
+        padding-top: 15px !important;
+    }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            border-radius: 8px !important;
+            border: 1px solid transparent !important;
+            color: #67748e !important;
+            padding: 0.4em 0.9em !important;
+            margin-left: 3px !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            font-weight: 500;
+        }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+                background: #e9ecef !important;
+                border-color: #d2d6da !important;
+                color: #344767 !important;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current,
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover,
+            .dataTables_wrapper .dataTables_paginate .paginate_button.current:active {
+                background: #344767 !important;
+                color: #ffffff !important;
+                border: 1px solid #344767 !important;
+                box-shadow: 0 3px 5px rgba(58,65,111,0.3) !important;
+            }
+
+            .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
+            .dataTables_wrapper .dataTables_paginate .paginate_button.disabled:hover {
+                color: #adb5bd !important;
+                background: transparent !important;
+                border: 1px solid transparent !important;
+                cursor: default;
+                box-shadow: none !important;
+            }
+
+/* Paginação Manual */
+.pagination .page-link {
+    border: none;
+    margin: 0 3px;
+    border-radius: 8px !important;
+    color: #67748e;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #344767;
+    color: white;
+    box-shadow: 0 3px 5px rgba(58,65,111,0.3);
+}
+
+table.dataTable.no-footer {
+    border-bottom: 1px solid #eef0f2 !important;
+}

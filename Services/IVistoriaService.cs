@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Http;
 using SistemaVistorias.Models;
-using System.Threading.Tasks;
 
 namespace SistemaVistorias.Services
 {

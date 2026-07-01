@@ -1,15 +1,9 @@
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using SistemaVistorias.Data;
 using SistemaVistorias.Models;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Word = DocumentFormat.OpenXml.Wordprocessing;
 using A = DocumentFormat.OpenXml.Drawing;
 using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
@@ -17,6 +11,10 @@ using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
 
 namespace SistemaVistorias.Services
 {
+    /// <summary>
+    /// Serviço dedicado à manipulação de arquivos Excel/Word e agregação de dados do banco
+    /// para a criação e extração de relatórios técnicos de vistoria.
+    /// </summary>
     public class RelatorioService : IRelatorioService
     {
         private readonly AppDbContext _context;
@@ -68,27 +66,6 @@ namespace SistemaVistorias.Services
             {
                 return (false, $"Erro ao gerar relatório: {ex.Message}", null, string.Empty);
             }
-        }
-
-        public async Task<object> TestarDadosAsync()
-        {
-            var totalAtivos = await _context.Ativos.AsNoTracking().CountAsync();
-            var comVistoria = await _context.Ativos.AsNoTracking().Where(a => a.DataVistoria != null).CountAsync();
-            var amostraComVistoria = await _context.Ativos
-                .AsNoTracking()
-                .Where(a => a.DataVistoria != null)
-                .Take(2)
-                .Select(a => new { a.PatrimonioAgevap, a.DataVistoria })
-                .ToListAsync();
-
-            return new
-            {
-                totalAtivos,
-                comVistoria,
-                semVistoria = totalAtivos - comVistoria,
-                amostra = amostraComVistoria,
-                temTemplateArquivo = System.IO.File.Exists(Path.Combine(_environment.ContentRootPath, "Templates", "ModeloRelatorioDesfazimento.docx"))
-            };
         }
 
         private static void PreencherBensNoTemplate(Body body, IReadOnlyList<Ativo> ativos, WordprocessingDocument documento)

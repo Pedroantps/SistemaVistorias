@@ -1,0 +1,113 @@
+﻿/* _Modals.css - Estilo Moderno para Modais */
+
+/* Fundo Escurecido (Backdrop) com leve Blur */
+.modal-backdrop.show {
+    opacity: 0.6;
+    backdrop-filter: blur(4px);
+    background-color: #1a2035;
+}
+
+/* O Card do Modal */
+.modal-content {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+    overflow: hidden;
+}
+
+/* Cabeçalho do Modal */
+.modal-header {
+    background-color: #344767;
+    color: #ffffff;
+    border-bottom: none;
+    padding: 20px 25px;
+    align-items: center;
+}
+
+.modal-title {
+    font-weight: 700;
+    font-size: 1.2rem;
+    letter-spacing: 0.5px;
+}
+
+/* Botão Fechar (X) */
+.modal-header .close {
+    color: #ffffff;
+    opacity: 0.8;
+    text-shadow: none;
+    transition: opacity 0.2s;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    padding: 0;
+    margin: -5px 0 0 auto;
+}
+
+    .modal-header .close:hover {
+        opacity: 1;
+        color: #fff;
+    }
+
+/* Corpo do Modal */
+.modal-body {
+    padding: 25px;
+    background-color: #ffffff;
+}
+
+    /* Inputs dentro do Modal (AJUSTE DE ALTURA) */
+    .modal-body .form-group label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #344767;
+        margin-bottom: 8px; /* Mais espaço entre label e input */
+        text-transform: uppercase;
+    }
+
+    .modal-body .form-control {
+        border-radius: 8px;
+        border: 1px solid #d2d6da;
+        padding: 12px 15px; /* PADDING AUMENTADO PARA DAR RESPIRO */
+        font-size: 1rem;
+        color: #495057;
+        min-height: 48px; /* ALTURA MÍNIMA GARANTIDA */
+        line-height: 1.5;
+    }
+
+        .modal-body .form-control:focus {
+            border-color: #344767;
+            box-shadow: 0 0 0 0.2rem rgba(52, 71, 103, 0.15);
+        }
+
+    /* Ajuste específico para selects */
+    .modal-body select.form-control {
+        background-position: right 15px center;
+    }
+
+/* Rodapé do Modal */
+.modal-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #eef0f2;
+    padding: 15px 25px;
+}
+
+    /* Botões do Modal */
+    .modal-footer .btn {
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+
+    .modal-footer .btn-secondary {
+        background-color: #fff;
+        color: #8392ab;
+        border: 1px solid #d2d6da;
+    }
+
+        .modal-footer .btn-secondary:hover {
+            background-color: #e9ecef;
+            color: #344767;
+        }

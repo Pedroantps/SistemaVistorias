@@ -1,41 +1,40 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaVistorias.Data;
-using SistemaVistorias.Models;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+using SistemaVistorias.Services;
 
 namespace SistemaVistorias.Controllers
 {
+    /// <summary>
+    /// Controlador responsável por prover os dados consolidados para a visualização do Dashboard.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class DashboardController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IAuthService _authService;
 
-        public DashboardController(AppDbContext context)
+        public DashboardController(AppDbContext context, IAuthService authService)
         {
             _context = context;
+            _authService = authService;
         }
 
-        private async Task<Usuario?> ObterUsuarioAutenticado()
-        {
-            var token = Request.Headers["Authorization"].ToString();
-            if (string.IsNullOrWhiteSpace(token)) return null;
-            const string prefixo = "Bearer ";
-            if (token.StartsWith(prefixo, StringComparison.OrdinalIgnoreCase))
-                token = token.Substring(prefixo.Length).Trim();
-
-            var sessao = await _context.Sessoes.FirstOrDefaultAsync(s => s.Token == token && s.DataExpiracao > DateTime.Now);
-            if (sessao == null) return null;
-            return await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == sessao.UsuarioId && u.Ativo);
-        }
-
+        /// <summary>
+        /// Obtém o resumo dos ativos cadastrados e as estatísticas de vistorias realizadas.
+        /// </summary>
+        /// <remarks>
+        /// Esta rota é o coração do dashboard. Ela lê de forma não-rastreada (AsNoTracking) os ativos inservíveis
+        /// para maximizar a performance. O retorno é um objeto anônimo formatado para facilitar a renderização
+        /// dos gráficos de rosca e barras diretamente no front-end, sem precisar de múltiplas requisições adicionais.
+        /// </remarks>
+        /// <returns>Retorna um JSON contendo o usuário logado, o resumo total e os agrupamentos por contrato, estado e vistoriador.</returns>
         [HttpGet]
         public async Task<IActionResult> ObterDashboard()
         {
-            var usuario = await ObterUsuarioAutenticado();
+            var authHeader = Request.Headers["Authorization"].ToString();
+            var usuario = await _authService.ObterUsuarioAutenticadoAsync(authHeader);
             if (usuario == null)
                 return Unauthorized(new { mensagem = "Sessao invalida ou expirada." });
 

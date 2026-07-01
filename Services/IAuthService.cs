@@ -1,6 +1,5 @@
 using SistemaVistorias.Models;
 using SistemaVistorias.Models.DTOs;
-using System.Threading.Tasks;
 
 namespace SistemaVistorias.Services
 {

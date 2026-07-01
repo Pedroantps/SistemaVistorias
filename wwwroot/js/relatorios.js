@@ -1,3 +1,6 @@
+/**
+ * Aciona a API para gerar e baixar o relatório de desfazimento.
+ */
 async function baixarRelatorioDesfazimento() {
     const alerta = obterElementoAlertaRelatorio();
     const btn = document.getElementById("btnRelatorio");
@@ -8,7 +11,7 @@ async function baixarRelatorioDesfazimento() {
     btn.disabled = true;
 
     try {
-        const resposta = await fetch("http://localhost:5158/api/relatorios/desfazimento", {
+        const resposta = await fetch("/api/relatorios/desfazimento", {
             headers: obterHeadersAutenticados()
         });
 
@@ -41,7 +44,7 @@ async function baixarRelatorioDesfazimento() {
         window.URL.revokeObjectURL(url);
     } catch (error) {
         console.error("Erro:", error);
-        mostrarAlertaRelatorio(alerta, "Erro ao contactar o servidor. Verifique se a API está a correr na porta 5158.");
+        mostrarAlertaRelatorio(alerta, "Erro ao contactar o servidor. Verifique se a API está a correr.");
     } finally {
         btn.innerHTML = textoOriginal;
         btn.disabled = false;

@@ -1,7 +1,6 @@
-// URL base da sua API (fácil de trocar quando for para o servidor da empresa)
-const API_BASE_URL = 'http://localhost:5158';
-
-// Mostra o nome do arquivo após o usuário selecionar
+/**
+ * Lê o input type="file" e exibe o nome do arquivo selecionado na tela de Importação.
+ */
 function mostrarNomeArquivo() {
     const input = document.getElementById('arquivoExcel');
     const display = document.getElementById('nomeArquivoSelecionado');
@@ -42,10 +41,10 @@ document.getElementById('formImportacao').addEventListener('submit', async funct
     formData.append('arquivo', file);
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/importacao/upload`, {
+        const response = await fetch('/api/importacao/upload', {
             method: 'POST',
             headers: obterHeadersAutenticados(),
-            body: formData // Nota: Não colocar 'Content-Type', o navegador gerencia isso sozinho para formulários com arquivo
+            body: formData
         });
 
         const data = await response.json();

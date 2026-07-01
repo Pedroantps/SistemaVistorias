@@ -1,13 +1,15 @@
-using System;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore; // <-- Necessário para usar a Chave Composta
+using Microsoft.EntityFrameworkCore;
 
 namespace SistemaVistorias.Models
 {
+    /// <summary>
+    /// Representa um bem patrimonial (ativo) registrado no sistema.
+    /// Possui chave primária composta pelo Número do Patrimônio e o Contrato de Gestão.
+    /// </summary>
     [PrimaryKey(nameof(PatrimonioAgevap), nameof(ContratoGestao))]
     public class Ativo
     {
-        // Removemos o [Key] que ficava aqui
         public string PatrimonioAgevap { get; set; } = string.Empty;
 
         public string ContratoGestao { get; set; } = string.Empty;
@@ -26,7 +28,6 @@ namespace SistemaVistorias.Models
 
         public bool IsAvulso { get; set; } = false;
 
-        // --- CAMPOS DE AUDITORIA ---
         public string? NovoEstadoConservacao { get; set; }
 
         public string? NumeroLaudo { get; set; }
@@ -35,7 +36,6 @@ namespace SistemaVistorias.Models
 
         public DateTime? DataVistoria { get; set; }
 
-        // --- USUARIO QUE REALIZOU A VISTORIA ---
         public string? UsuarioVistoriador { get; set; }
     }
 }

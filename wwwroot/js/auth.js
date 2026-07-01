@@ -1,8 +1,11 @@
-// ============================================================
-// AUTH.JS - Módulo de Autenticação do Sistema de Vistorias
-// ============================================================
+/**
+ * AUTH.JS - Módulo de Autenticação do Sistema de Vistorias
+ * 
+ * Centraliza as operações de login, logout, verificação de token e gestão da sessão
+ * do lado do cliente utilizando LocalStorage para armazenar o JWT.
+ */
 
-const AUTH_API_URL = 'http://localhost:5158/api/auth';
+const AUTH_API_URL = '/api/auth';
 
 // ---- Headers com Token para chamadas autenticadas ----
 

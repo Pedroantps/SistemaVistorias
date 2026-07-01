@@ -1,0 +1,674 @@
+html {
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.custom-file-label {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+.btn-zeropadding {
+    padding: 0;
+}
+
+/* botão sem estilo por padrão */
+button.unstyled-button {
+    border: none;
+    padding: 10px 10px 10px 20px;
+    background-color: transparent;
+    /* melhor que background:none */
+    color: inherit;
+    cursor: pointer;
+    border-radius: 6px;
+    display: block;
+    text-align: initial;
+}
+
+/* hover / foco / ativo */
+button.unstyled-button:hover,
+button.unstyled-button:focus {
+    background-color: rgba(255, 255, 255, 0.05);
+    outline: none;
+    /* remove a borda padrão do foco visualmente; só faça isso se fornecer outro indicador */
+}
+
+/* se o Bootstrap estiver "abatendo" sua regra, aumente a especificidade */
+.collapse .unstyled-button:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.btn-layout {
+    background-color: lightskyblue;
+    transition: 0.1s;
+}
+
+.btn-layout:hover {
+    opacity: 0.7
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 4em;
+}
+
+footer {
+    display: flex;
+    align-items: center;
+    height: 10vh;
+}
+
+header {
+    height: 5vh;
+}
+
+.container-fluid {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+.custom-switch {
+    position: relative;
+    display: inline-block;
+    width: 120px;
+    height: 34px;
+    margin-bottom: 0;
+}
+
+.custom-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .9s;
+    border-radius: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: white;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .9s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: #2196F3;
+}
+
+input:checked+.slider:before {
+    transform: translateX(86px);
+}
+
+
+#vehiclesContainer.row {
+    margin-right: 0;
+    margin-left: 0;
+}
+
+body,
+html {
+    margin: 0;
+    padding: 0;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    min-height: 80vh;
+    /* Ocupa toda a altura da tela */
+}
+
+
+header {
+    height: 5vh;
+}
+
+footer {
+    display: flex;
+    /* Define o footer como um container flex */
+    align-items: center;
+    /* Centraliza os textos verticalmente */
+    width: 100%;
+    white-space: nowrap;
+    height: 10vh;
+}
+
+.nav-link.selected {
+    color: yellow !important;
+}
+
+.custom-home-cards {
+    display: flex;
+    justify-content: center;
+    /* Centraliza horizontalmente */
+    align-items: center;
+    /* Centraliza verticalmente */
+    flex-grow: 1;
+    /* Define que a div deve ocupar todo o espaço restante na tela */
+}
+
+
+.card-grid {
+    display: grid;
+    gap: 20px;
+}
+
+@media (max-width: 992px) {
+    .navbar-brand {
+        display: none;
+    }
+}
+
+@media (min-width: 0px) {
+    .card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+}
+
+@media (min-width: 768px) {
+    .card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+
+@media (min-width: 1384px) {
+    .card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    }
+}
+
+@media (min-width: 2000px) {
+    .card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+}
+
+.custom-card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    transition: transform 0.3s ease;
+}
+
+.custom-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.custom-card .custom-card-body {
+    padding: 1vw 5vw;
+}
+
+.custom-card .custom-card-img-top {
+    max-width: 100%;
+    height: auto;
+}
+
+.custom-card .custom-card-title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #333;
+    border-top: 1px solid #ccc;
+    border-radius: 8px
+}
+
+.custom-card a {
+    text-decoration: none;
+    color: inherit;
+}
+
+
+.alert-fixed-top {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    /* Posiciona a notificação no centro horizontal da tela */
+    transform: translateX(-50%);
+    /* Centraliza a notificação horizontalmente */
+    max-width: 100%;
+    /* Define a largura máxima da notificação */
+    z-index: 9999;
+    /* Certifique-se de que a camada de z-index seja maior que o conteúdo principal */
+}
+
+
+.table thead th {
+    vertical-align: middle;
+    background-color: #1e4976;
+    color: white;
+    /* Para garantir que o texto fique visível */
+}
+
+.table-hover tbody tr:hover {
+    background-color: #d0e3f0;
+    /* Tom de azul acinzentado */
+}
+
+.mt-custom {
+    margin-top: 20px;
+    /* Ajuste o valor conforme necessário */
+}
+
+a.navbar-brand {
+    white-space: normal;
+    text-align: center;
+    word-break: break-word;
+}
+
+/* Provide sufficient contrast against white background */
+a {
+    color: #0366d6;
+}
+
+.btn-custom {
+    width: 85%;
+    margin-bottom: 10px;
+    /* Opcional: para adicionar um espaço entre os botões e os campos */
+    font-size: 80%;
+}
+
+.btn-group .btn {
+    background-color: #1e4976 !important;
+    color: white !important;
+    /* Garante que o texto fique visível */
+    border-color: #1e4976 !important;
+    /* Mantém a borda no mesmo tom */
+}
+
+.btn-group .btn:hover {
+    background-color: #163656 !important;
+    /* Um tom um pouco mais escuro no hover */
+    border-color: #163656 !important;
+}
+
+
+
+.nav-pills .nav-link.active,
+.nav-pills .show>.nav-link {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.border-top {
+    border-top: 1px solid #e5e5e5;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+    font-size: 1rem;
+    line-height: inherit;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+
+
+
+.vertical-align-middle td {
+    vertical-align: middle;
+}
+
+
+
+.list-check {
+    display: flex;
+    gap: 10px;
+    /* Espaçamento entre os elementos */
+}
+
+.rad-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.rad-label:hover,
+.rad-label:focus-within {
+    background: hsla(0, 0%, 80%, .14);
+}
+
+.form-check-input {
+    position: absolute;
+    left: -9999px;
+}
+
+.rad-design {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(to right bottom, hsl(154, 97%, 62%), hsl(225, 97%, 62%));
+    margin-right: 8px;
+}
+
+.rad-design::before {
+    content: '';
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+    background: hsl(0, 0%, 90%);
+    transform: scale(1.1);
+    transition: .3s;
+}
+
+.form-check-input:checked+.rad-design::before {
+    transform: scale(0);
+}
+
+.rad-text {
+    color: hsl(0, 0%, 60%);
+    letter-spacing: 1px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: .3s;
+}
+
+.form-check-input:checked~.rad-text {
+    color: hsl(0, 0%, 40%);
+}
+
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0 0.5rem;
+}
+
+.checkbox-wrapper {
+    width: calc(50% - 0.5rem);
+    margin-bottom: 1rem;
+}
+
+.img-card {
+    max-width: 7vw;
+    height: auto;
+}
+
+.checkbox-input {
+    clip: rect(0 0 0 0);
+    height: 1px;
+    overflow: hidden;
+    position: absolute;
+    white-space: nowrap;
+    width: 1px;
+}
+
+.checkbox-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 15rem;
+    min-height: 10rem;
+    border-radius: 0.5rem;
+    border: 2px solid #b5bfd9;
+    background-color: #fff;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    transition: 0.15s ease;
+    cursor: pointer;
+    position: relative;
+
+    &:before {
+        content: "";
+        position: absolute;
+        display: block;
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 2px solid #b5bfd9;
+        background-color: #fff;
+        border-radius: 50%;
+        top: 0.25rem;
+        left: 0.25rem;
+        opacity: 0;
+        transform: scale(0);
+        transition: 0.25s ease;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='192' height='192' fill='%23FFFFFF' viewBox='0 0 256 256'%3E%3Crect width='256' height='256' fill='none'%3E%3C/rect%3E%3Cpolyline points='216 72.005 104 184 48 128.005' fill='none' stroke='%23FFFFFF' stroke-linecap='round' stroke-linejoin='round' stroke-width='32'%3E%3C/polyline%3E%3C/svg%3E");
+        background-size: 12px;
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+    }
+
+    &:hover {
+        border-color: #2260ff;
+
+        &:before {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .checkbox-input:checked+& {
+        border-color: #2260ff;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        color: #2260ff;
+
+        &:before {
+            transform: scale(1);
+            opacity: 1;
+            background-color: #2260ff;
+            border-color: #2260ff;
+        }
+    }
+
+    .checkbox-icon,
+    .checkbox-label {
+        color: #2260ff;
+        display: flex;
+        flex-direction: row;
+        font-size: 80%;
+        margin: 0.1rem;
+        text-align: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+
+    .checkbox-input:focus+.checkbox-tile {
+        border-color: #2260ff;
+        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1), 0 0 0 4px #b5c9fc;
+    }
+
+    .checkbox-input:checked+.checkbox-tile:before {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    .badge-notif {
+        background-color: #dc3545;
+        /* vermelho bootstrap */
+        color: white;
+        padding: 3px 7px;
+        font-size: 0.75rem;
+        border-radius: 12px;
+        margin-left: 6px;
+    }
+
+    /* Estilo dos Cards de Sugestão */
+    .suggestion-card {
+        border: none;
+        border-radius: 8px;
+        background-color: #fff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        margin-bottom: 15px;
+        border-left: 5px solid #ccc;
+        /* Cor padrão */
+        transition: transform 0.2s, box-shadow 0.2s;
+        position: relative;
+    }
+
+    .suggestion-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Cores de Status */
+    .status-pending {
+        border-left-color: #ffbc00;
+    }
+
+    /* Amarelo */
+    .status-approved {
+        border-left-color: #2dce89;
+    }
+
+    /* Verde */
+    .status-rejected {
+        border-left-color: #f5365c;
+    }
+
+    /* Vermelho */
+    .status-response {
+        border-left-color: #11cdef;
+    }
+
+    /* Azul (Respondido não final) */
+    /* Conteúdo do Card */
+    .card-content {
+        padding: 15px 20px;
+    }
+
+    .card-meta {
+        font-size: 0.8rem;
+        color: #8898aa;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .card-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #344767;
+        margin-bottom: 10px;
+    }
+
+    .status-badge {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .badge-pending {
+        background-color: #fff3cd;
+        color: #ffbc00;
+    }
+
+    .badge-approved {
+        background-color: #d1e7dd;
+        color: #2dce89;
+    }
+
+    .badge-rejected {
+        background-color: #f8d7da;
+        color: #f5365c;
+    }
+
+    .response-text {
+        background-color: #f6f9fc;
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        color: #525f7f;
+        margin-top: 10px;
+        border-left: 3px solid rgba(0, 0, 0, 0.1);
+    }
+
+    /* Notificação (Bolinha vermelha) */
+    .notify-dot {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 10px;
+        height: 10px;
+        background-color: #f5365c;
+        border-radius: 50%;
+        box-shadow: 0 0 0 2px #fff;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(245, 54, 92, 0.7);
+        }
+
+        70% {
+            box-shadow: 0 0 0 6px rgba(245, 54, 92, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(245, 54, 92, 0);
+        }
+    }
+
+    /* Link que cobre o card todo */
+    .stretched-link::after {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1;
+        content: "";
+    }
+}

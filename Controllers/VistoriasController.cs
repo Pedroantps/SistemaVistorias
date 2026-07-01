@@ -1,10 +1,11 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SistemaVistorias.Services;
-using System.Threading.Tasks;
 
 namespace SistemaVistorias.Controllers
 {
+    /// <summary>
+    /// Controlador responsável pelo fluxo de preenchimento e registro das vistorias (formulário e fotos).
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class VistoriasController : ControllerBase
@@ -18,6 +19,17 @@ namespace SistemaVistorias.Controllers
             _authService = authService;
         }
 
+        /// <summary>
+        /// Busca um ativo específico antes de iniciar o preenchimento da vistoria.
+        /// </summary>
+        /// <remarks>
+        /// A busca permite localizar um ativo cadastrado por meio de seu Patrimônio e Contrato de Gestão.
+        /// O retorno também sinaliza previamente ao front-end se a condição do bem foi cadastrada como "inservível",
+        /// preparando a interface para exibir alertas ao vistoriador.
+        /// </remarks>
+        /// <param name="patrimonio">Patrimônio (AGEVAP ou Órgão).</param>
+        /// <param name="contrato">Contrato de Gestão.</param>
+        /// <returns>Detalhes do ativo e flag indicando condição inservível.</returns>
         [HttpGet("buscar")]
         public async Task<IActionResult> BuscarAtivo([FromQuery] string patrimonio, [FromQuery] string contrato)
         {
@@ -36,6 +48,14 @@ namespace SistemaVistorias.Controllers
             return Ok(new { ativo, isInservivel });
         }
 
+        /// <summary>
+        /// Registra os dados finais da vistoria e faz o upload das fotos anexadas.
+        /// </summary>
+        /// <remarks>
+        /// A rota é configurada para [FromForm] (multipart/form-data) pois mistura dados textuais 
+        /// com até quatro arquivos binários pesados (fotos). Os arquivos são persistidos no disco (wwwroot/fotos_vistorias)
+        /// para poupar o banco de dados.
+        /// </remarks>
         [HttpPost("registrar")]
         public async Task<IActionResult> RegistrarVistoria(
             [FromForm] string patrimonioAgevap,

@@ -1,3 +1,7 @@
+/**
+ * Busca um ativo patrimonial na API.
+ * Chamada a partir da view Index (Busca de Patrimônio).
+ */
 async function buscarAtivo() {
     const contrato = document.getElementById("contratoGestao").value;
     const patrimonio = document.getElementById("patrimonioInput").value;
@@ -18,7 +22,7 @@ async function buscarAtivo() {
     btn.disabled = true;
 
     try {
-        const resposta = await fetch(`http://localhost:5158/api/vistorias/buscar?patrimonio=${patrimonio}&contrato=${encodeURIComponent(contrato)}`, {
+        const resposta = await fetch(`/api/vistorias/buscar?patrimonio=${patrimonio}&contrato=${encodeURIComponent(contrato)}`, {
             headers: obterHeadersAutenticados()
         });
         

@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using SistemaVistorias.Services;
-using System.Threading.Tasks;
 
 namespace SistemaVistorias.Controllers
 {
+    /// <summary>
+    /// Controlador responsável pela geração e download de relatórios.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class RelatoriosController : ControllerBase
@@ -15,6 +17,11 @@ namespace SistemaVistorias.Controllers
             _relatorioService = relatorioService;
         }
 
+        /// <summary>
+        /// Gera e retorna um relatório (em formato Word) dos bens que foram
+        /// alterados para a condição de "Inservível".
+        /// </summary>
+        /// <returns>O arquivo .docx gerado ou uma mensagem de erro.</returns>
         [HttpGet("desfazimento")]
         public async Task<IActionResult> GerarRelatorioDesfazimento()
         {
@@ -31,20 +38,6 @@ namespace SistemaVistorias.Controllers
                 resultado.Arquivo!,
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 resultado.NomeArquivo);
-        }
-
-        [HttpGet("teste")]
-        public async Task<IActionResult> TestarDados()
-        {
-            try
-            {
-                var resultado = await _relatorioService.TestarDadosAsync();
-                return Ok(resultado);
-            }
-            catch (System.Exception ex)
-            {
-                return StatusCode(500, new { mensagem = $"Erro ao testar: {ex.Message}" });
-            }
         }
     }
 }

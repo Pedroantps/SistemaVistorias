@@ -1,0 +1,140 @@
+﻿/* _Dashboard.css */
+
+/* --- Cards de Sugestão --- */
+.suggestion-card {
+    border: none;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    margin-bottom: 15px;
+    border-left: 5px solid #ccc; /* Cor padrão */
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden; /* Garante que nada vaze */
+}
+
+    .suggestion-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+/* Cores de Status (Borda Esquerda) */
+.status-pending {
+    border-left-color: #ffbc00 !important;
+}
+/* Amarelo */
+.status-approved {
+    border-left-color: #2dce89 !important;
+}
+/* Verde */
+.status-rejected {
+    border-left-color: #f5365c !important;
+}
+/* Vermelho */
+.status-response {
+    border-left-color: #11cdef !important;
+}
+/* Azul */
+
+/* Conteúdo */
+.card-content {
+    padding: 20px;
+}
+
+.card-meta {
+    font-size: 0.8rem;
+    color: #8898aa;
+    margin-bottom: 8px;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #344767;
+    margin-bottom: 15px;
+}
+
+/* Badges */
+.status-badge {
+    font-size: 0.7rem;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.badge-pending {
+    background-color: #fff3cd;
+    color: #ffbc00;
+}
+
+.badge-approved {
+    background-color: #d1e7dd;
+    color: #2dce89;
+}
+
+.badge-rejected {
+    background-color: #f8d7da;
+    color: #f5365c;
+}
+
+/* Texto de Resposta */
+.response-text {
+    background-color: #f6f9fc;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: #525f7f;
+    margin-top: 15px;
+    border-left: 3px solid rgba(0,0,0,0.1);
+}
+
+/* Link Estendido (Cobre todo o card) */
+.stretched-link::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    content: "";
+}
+
+/* --- ANIMAÇÃO DE NOTIFICAÇÃO --- */
+.notify-dot {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 12px;
+    height: 12px;
+    background-color: #f5365c;
+    border-radius: 50%;
+    z-index: 2;
+    box-shadow: 0 0 0 0 rgba(245, 54, 92, 0.7);
+    animation: pulse-red 2s infinite;
+}
+
+/* REGRA KEYFRAME NA RAIZ DO ARQUIVO */
+@keyframes pulse-red {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(245, 54, 92, 0.7);
+    }
+
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(245, 54, 92, 0);
+    }
+
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(245, 54, 92, 0);
+    }
+}

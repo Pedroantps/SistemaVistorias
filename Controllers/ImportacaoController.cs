@@ -2,45 +2,43 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SistemaVistorias.Data;
 using SistemaVistorias.Models;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using ClosedXML.Excel;
 using System.Text;
 using System.Globalization;
+using SistemaVistorias.Services;
 
 namespace SistemaVistorias.Controllers
 {
+    /// <summary>
+    /// Controlador responsável por orquestrar a leitura e gravação em lote a partir de planilhas Excel.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class ImportacaoController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IAuthService _authService;
 
-        public ImportacaoController(AppDbContext context)
+        public ImportacaoController(AppDbContext context, IAuthService authService)
         {
             _context = context;
+            _authService = authService;
         }
 
-        private async Task<Usuario?> ObterUsuarioAutenticado()
-        {
-            var token = Request.Headers["Authorization"].ToString();
-            if (string.IsNullOrWhiteSpace(token)) return null;
-            const string prefixo = "Bearer ";
-            if (token.StartsWith(prefixo, StringComparison.OrdinalIgnoreCase))
-                token = token.Substring(prefixo.Length).Trim();
-
-            var sessao = await _context.Sessoes.FirstOrDefaultAsync(s => s.Token == token && s.DataExpiracao > DateTime.Now);
-            if (sessao == null) return null;
-            return await _context.Usuarios.FirstOrDefaultAsync(u => u.Id == sessao.UsuarioId && u.Ativo);
-        }
-
+        /// <summary>
+        /// Processa o upload de uma planilha do Excel, identificando abas e mapeando colunas dinamicamente para inserir ou atualizar ativos no banco.
+        /// </summary>
+        /// <remarks>
+        /// A lógica tenta ser resiliente contra pequenas variações no modelo da planilha (nomes de colunas ou linhas vazias no cabeçalho).
+        /// Em vez de confiar em colunas fixas (ex: "A", "B", "C"), o sistema faz um mapeamento por palavras-chave na linha de cabeçalho.
+        /// </remarks>
+        /// <param name="arquivo">Arquivo Excel (.xlsx) contendo os ativos recebidos no payload multipart/form-data.</param>
+        /// <returns>HTML contendo o resultado da importação e eventuais logs de aviso gerados durante a leitura.</returns>
         [HttpPost("upload")]
         public async Task<IActionResult> ImportarPlanilha(IFormFile arquivo)
         {
-            var usuario = await ObterUsuarioAutenticado();
+            var authHeader = Request.Headers["Authorization"].ToString();
+            var usuario = await _authService.ObterUsuarioAutenticadoAsync(authHeader);
             if (usuario == null)
                 return Unauthorized(new { mensagem = "Sessao invalida ou expirada." });
 
@@ -77,14 +75,10 @@ namespace SistemaVistorias.Controllers
                 }
 
                 int linhaCabecalhoIndex = EncontrarLinhaCabecalho(worksheet, nomeAba == "Patrimônio Adquirido" ? 14 : 10);
-
-                // ATUALIZAÇÃO AQUI: Passamos arrays e uma lista de palavras proibidas (como "anterior")
                 int colAgevap = ObterIndiceColuna(worksheet, linhaCabecalhoIndex, new[] { "agevap", "adquirido" });
                 int colOrgao = ObterIndiceColuna(worksheet, linhaCabecalhoIndex, new[] { "orgao", "órgão", "inea", "cedido", "tombamento" });
                 int colDescricao = ObterIndiceColuna(worksheet, linhaCabecalhoIndex, new[] { "descricao", "descrição", "especificacao", "especificação", "bem" });
                 int colContrato = ObterIndiceColuna(worksheet, linhaCabecalhoIndex, new[] { "contrato", "cg", "origem" });
-
-                // O sistema vai ignorar qualquer coluna que tenha "anterior" ou "antigo" no nome
                 int colInstalacao = ObterIndiceColuna(worksheet, linhaCabecalhoIndex,
                     new[] { "instalacao", "instalação", "local", "setor", "unidade" },
                     new[] { "anterior", "antigo" });
@@ -209,10 +203,17 @@ namespace SistemaVistorias.Controllers
             return Ok(new { mensagem = mensagemHtml });
         }
 
+        /// <summary>
+        /// Limpa permanentemente a tabela de ativos.
+        /// </summary>
+        /// <remarks>
+        /// Criada para testes de reset (homologação) ou cenários onde toda a base patrimonial precisou ser descartada.
+        /// </remarks>
         [HttpDelete("limpar-banco")]
         public async Task<IActionResult> LimparBancoDeDados()
         {
-            var usuario = await ObterUsuarioAutenticado();
+            var authHeader = Request.Headers["Authorization"].ToString();
+            var usuario = await _authService.ObterUsuarioAutenticadoAsync(authHeader);
             if (usuario == null)
                 return Unauthorized(new { mensagem = "Sessao invalida ou expirada." });
 
@@ -239,15 +240,27 @@ namespace SistemaVistorias.Controllers
                    (rowText.Contains("estado") || rowText.Contains("condicao") || rowText.Contains("situacao") || rowText.Contains("local") || rowText.Contains("instalacao"));
         }
 
-        // ATUALIZAÇÃO AQUI: O método agora aceita a lista de palavras proibidas
-        private int ObterIndiceColuna(IXLWorksheet ws, int linhaCabecalhoIndex, string[] palavrasChave, string[] palavrasProibidas = null)
+        /// <summary>
+        /// Extrai e resolve os índices das colunas de uma planilha com base em palavras-chave.
+        /// </summary>
+        /// <remarks>
+        /// A flexibilidade nos nomes das colunas ocorre porque planilhas de fontes diferentes (como diferentes órgãos) 
+        /// costumam variar na nomenclatura (ex: "descrição", "especificação", "bem"). 
+        /// A lista de "palavras proibidas" garante que colunas obsoletas (como "estado anterior") sejam ignoradas,
+        /// prevenindo a importação de dados residuais que corromperiam o estado atual do ativo.
+        /// </remarks>
+        /// <param name="ws">A planilha (worksheet) em leitura.</param>
+        /// <param name="linhaCabecalhoIndex">O índice da linha que contém o cabeçalho validado.</param>
+        /// <param name="palavrasChave">Lista de possíveis nomes para a coluna desejada.</param>
+        /// <param name="palavrasProibidas">Lista de termos que invalidam a coluna (ex: "anterior").</param>
+        /// <returns>Retorna o índice numérico da coluna correspondente, ou -1 caso não seja encontrada.</returns>
+        private int ObterIndiceColuna(IXLWorksheet ws, int linhaCabecalhoIndex, string[] palavrasChave, string[]? palavrasProibidas = null)
         {
             var linhaCabecalho = ws.Row(linhaCabecalhoIndex);
             foreach (var celula in linhaCabecalho.CellsUsed())
             {
                 var valorCabecalho = RemoverAcentos(celula.GetString().Trim().ToLower());
 
-                // Trava: se a coluna tiver uma palavra proibida (ex: "anterior"), ele ignora e passa pra próxima
                 if (palavrasProibidas != null && palavrasProibidas.Any(p => valorCabecalho.Contains(RemoverAcentos(p.ToLower()))))
                 {
                     continue;

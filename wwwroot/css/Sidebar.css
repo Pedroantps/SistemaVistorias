@@ -1,0 +1,222 @@
+/* Sidebar.css - Versão Final Corrigida */
+
+body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background-color: #f8f9fa;
+    overflow-x: hidden;
+}
+
+/* --- CONFIGURAÇÃO DO SIDEBAR FIXO --- */
+#sidebar {
+    width: 260px;
+    min-width: 260px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    /* Gradiente Azul Profundo */
+    background: linear-gradient(180deg, #344767 0%, #1a2035 100%);
+    color: #fff;
+    z-index: 1050;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), margin-left 0.3s;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 15px;
+    overflow-y: auto;
+    box-shadow: 4px 0 15px rgba(0,0,0,0.05);
+}
+
+/* --- CONFIGURAÇÃO DO CONTEÚDO PRINCIPAL --- */
+.main-content-wrapper {
+    margin-left: 260px; /* Igual à largura do sidebar */
+    width: calc(100% - 260px); /* Correção de overflow horizontal */
+    padding: 0;
+    transition: all 0.3s;
+}
+
+/* Scrollbar */
+#sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+#sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
+
+    #sidebar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.4);
+    }
+
+/* Logo */
+.sidebar-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.logo-sidebar {
+    max-width: 150px;
+    height: auto;
+    object-fit: contain;
+    /* Adiciona um fundo branco suave se a logo for escura */
+    background: rgba(255,255,255,0.05);
+    padding: 10px;
+    border-radius: 12px;
+    backdrop-filter: blur(5px);
+}
+
+/* --- LABELS (CORRIGIDO: Cor mais clara) --- */
+.menu-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #ffffff; /* Branco puro para legibilidade */
+    opacity: 0.9;
+    font-weight: 700;
+    margin: 20px 0 10px 10px;
+    letter-spacing: 0.5px;
+}
+
+/* Lista */
+.list-unstyled.components {
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+}
+
+    .list-unstyled.components li {
+        margin-bottom: 5px;
+    }
+
+/* --- LINKS DO MENU (CORRIGIDO: Alinhamento) --- */
+.nav-link-custom {
+    padding: 12px 15px;
+    font-size: 0.95rem; /* Fonte ligeiramente maior */
+    display: flex; /* Garante flexbox */
+    flex-direction: row; /* Força linha */
+    align-items: center; /* Centraliza verticalmente */
+    color: rgba(255, 255, 255, 0.9); /* Texto mais claro */
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+    width: 100%; /* Garante largura total */
+}
+
+    /* Ícone (CORRIGIDO: Não encolher) */
+    .nav-link-custom .icon-box {
+        width: 32px;
+        height: 32px;
+        min-width: 32px; /* Impede esmagamento */
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        font-size: 1rem;
+        flex-shrink: 0; /* CRUCIAL: Impede que o ícone vá para outra linha ou encolha */
+    }
+
+    .nav-link-custom .text {
+        font-weight: 500;
+        white-space: nowrap; /* Impede que o texto quebre linha */
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Efeito Hover e Active */
+    .nav-link-custom:hover,
+    .nav-link-custom.active,
+    .nav-link-custom[aria-expanded="true"] { /* Estilo quando submenu está aberto */
+        background-color: #ffffff;
+        color: #344767;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        font-weight: 600;
+    }
+
+        .nav-link-custom:hover .icon-box,
+        .nav-link-custom.active .icon-box,
+        .nav-link-custom[aria-expanded="true"] .icon-box {
+            background: #344767;
+            color: #ffffff;
+        }
+
+/* --- SUPORTE A SUBMENUS (COLLAPSE) --- */
+/* Seta do Dropdown */
+.dropdown-toggle::after {
+    display: inline-block;
+    margin-left: auto; /* Empurra a seta para a direita */
+    vertical-align: 0.255em;
+    content: "";
+    border-top: 0.3em solid;
+    border-right: 0.3em solid transparent;
+    border-bottom: 0;
+    border-left: 0.3em solid transparent;
+    opacity: 0.5;
+}
+
+/* Submenu Container */
+.collapse.show, .collapsing {
+    background: rgba(0, 0, 0, 0.1); /* Fundo sutil para o submenu */
+    border-radius: 8px;
+    margin-top: 5px;
+}
+
+/* Itens do Submenu */
+.list-unstyled.components .collapse li a {
+    padding: 10px 10px 10px 20px; /* Indentação maior */
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    display: block;
+    text-decoration: none;
+    border-radius: 6px;
+}
+
+    .list-unstyled.components .collapse li a:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+/* Perfil do Usuário */
+.user-profile-section {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+    .user-profile-section a {
+        color: #fff !important;
+        text-decoration: none;
+    }
+
+/* Rodapé */
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-align: center;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    #sidebar {
+        transform: translateX(-100%);
+        margin-left: 0;
+    }
+
+        #sidebar.active {
+            transform: translateX(0);
+        }
+
+    .main-content-wrapper {
+        margin-left: 0;
+        width: 100%;
+    }
+}

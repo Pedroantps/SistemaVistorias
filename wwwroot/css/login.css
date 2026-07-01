@@ -1,0 +1,86 @@
+﻿.text-danger.validation-summary-errors {
+    text-align: justify;
+}
+
+.validation-summary-errors ul {
+    padding-left: 0;
+}
+
+    .validation-summary-errors ul li {
+        list-style: none;
+        margin-left: 0;
+    }
+
+
+.auth-form {
+    position: relative;
+    z-index: 1;
+    background: #FFFFFF;
+    max-width: 360px;
+    width: 100%; /* Garantir que a largura do formulário seja igual */
+    margin-top:15vh;
+    padding: 45px;
+    text-align: center;
+    box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+    transition: all 0.3s ease-in-out;
+}
+
+    .auth-form input {
+        font-family: "Roboto", sans-serif;
+        outline: 0;
+        background: #f2f2f2;
+        border: 0;
+        padding: 15px;
+        box-sizing: border-box;
+        font-size: 14px;
+    }
+
+    .auth-form button {
+        font-family: "Roboto", sans-serif;
+        outline: 0;
+        background: #007BFF; /* Usando a cor padrão do btn-primary do Bootstrap */
+        width: 100%;
+        border: 0;
+        padding: 10px;
+        color: #FFFFFF;
+        font-size: 14px;
+        transition: background-color 0.3s ease;
+        cursor: pointer;
+    }
+
+        .auth-form button:hover, .auth-form button:focus {
+            background: #0056b3; /* Usando a cor hover padrão do btn-primary do Bootstrap */
+        }
+
+    .auth-form .message {
+        margin: 15px 0 0;
+        color: #b3b3b3;
+        font-size: 12px;
+    }
+
+        .auth-form .message a {
+            color: #007BFF; /* Usando a cor padrão do link do Bootstrap */
+            text-decoration: none;
+        }
+
+.auth-form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-check-input {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+}
+
+.col-md-5_5 {
+    flex: 0 0 calc(50% - 15px); /* Ajuste 15px para o gap desejado */
+    max-width: calc(50% - 15px);
+}
+
+.auth-tbox {
+    height: calc(1.5em + .75rem + 2px);
+}

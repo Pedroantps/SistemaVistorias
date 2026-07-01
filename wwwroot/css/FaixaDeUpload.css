@@ -1,0 +1,76 @@
+﻿:root {
+    --slide-ease: cubic-bezier(0.2, 0.9, 0.2, 1);
+    --slide-duration: 350ms;
+}
+
+/* Container principal: Cria o contexto para os elementos absolutos */
+.btn-wrap {
+    position: relative;
+    display: inline-flex; /* Ajusta ao tamanho do botão */
+    align-items: center;
+    z-index: 1; /* Garante contexto de empilhamento */
+}
+
+    /* O botão deve ficar SEMPRE por cima do loader */
+    .btn-wrap .btn {
+        position: relative;
+        z-index: 10;
+        transition: transform var(--slide-duration) var(--slide-ease);
+    }
+
+/* O Painel do Loader */
+.loader-panel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%; /* Mesma altura do botão automaticamente */
+    /* Design Visual */
+    background: #fff;
+    padding: 0 12px;
+    border-radius: 6px; /* Ajuste conforme seu tema bootstrap */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    border: 1px solid #e2e8f0;
+    /* Layout interno do loader */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    /* Estado Inicial: Escondido atrás do botão */
+    z-index: 5;
+    opacity: 0;
+    transform: translateX(0);
+    pointer-events: none;
+    transition: all var(--slide-duration) var(--slide-ease);
+}
+
+/* --- ESTADO ATIVO (.loading) --- */
+
+/* O painel desliza para a direita (100% da largura do botão + 10px de gap) */
+.btn-wrap.loading .loader-panel {
+    opacity: 1;
+    transform: translateX(calc(-100% - 5px));
+    pointer-events: auto;
+}
+
+/* --- ANIMAÇÃO DO ÍCONE (SPINNER) --- */
+.spin {
+    animation: spin 800ms linear infinite;
+    color: var(--primary, #0d6efd); /* Usa a cor primary do bootstrap ou fallback */
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Texto opcional */
+.loader-text {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #64748b;
+}

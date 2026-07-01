@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Vistorias AGEVAP</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="~/css/bootstrap-icons-1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/Sidebar.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/_Modals.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/_DocumentosListagem.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/_Dashboard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/FaixaDeUpload.css" asp-append-version="true"/>
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body>
+    <!-- Mobile Header (Visível apenas em telas pequenas) -->
+    <div class="mobile-header d-md-none d-flex justify-content-between align-items-center p-3 bg-white shadow-sm" style="position: sticky; top: 0; z-index: 1040;">
+        <img src="/imgs/logo-agevap.png" alt="Logo" style="height: 30px;" />
+        <button id="mobileSidebarToggle" class="btn btn-light shadow-sm" style="border-radius: 8px;">
+            <i class="bi bi-list fs-4"></i>
+        </button>
+    </div>
+
+    <!-- Overlay escuro para quando a sidebar estiver aberta no mobile -->
+    <div id="sidebarOverlay" class="d-md-none d-none" style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1045; transition: opacity 0.3s;"></div>
+
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <a asp-controller="Home" asp-action="Index">
+                <img src="/imgs/logo-agevap.png" alt="Logo" class="logo-sidebar" />
+            </a>
+        </div>
+
+        <div class="sidebar-content">
+            <ul class="list-unstyled components">
+
+                <div class="user-profile-section mb-4 mx-2">
+                    <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background: rgba(255,255,255,0.1);">
+                        <i class="bi bi-person-circle fs-3 text-white me-3" style="margin-right: 15px;"></i>
+                        <span id="sidebarUsuario" class="fw-bold fs-6 text-white text-truncate">Usuário</span>
+                    </div>
+                </div>
+
+                <li class="menu-label">VISTORIA DE BENS</li>
+                <li>
+                    <a href="/Home/Dashboard" class="nav-link-custom @(ViewContext.RouteData.Values["Action"]?.ToString() == "Dashboard" ? "active" : "")">
+                        <div class="icon-box"><i class="bi bi-speedometer2"></i></div>
+                        <span class="text">Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Home/Index" class="nav-link-custom @((ViewContext.RouteData.Values["Action"]?.ToString() == "Index" || ViewContext.RouteData.Values["Action"]?.ToString() == "Vistoria") ? "active" : "")">
+                        <div class="icon-box"><i class="bi bi-search"></i></div>
+                        <span class="text">Buscar Patrimônio</span>
+                    </a>
+                </li>
+                
+                <li class="menu-label mt-4">ADMINISTRAÇÃO</li>
+                <li>
+                    <a href="/Home/Importacao" class="nav-link-custom @(ViewContext.RouteData.Values["Action"]?.ToString() == "Importacao" ? "active" : "")">
+                        <div class="icon-box"><i class="bi bi-file-earmark-excel"></i></div>
+                        <span class="text">Importar Dados</span>
+                    </a>
+                </li>
+
+                <li class="mt-auto pt-3 mt-4" style="border-top: 1px solid rgba(255, 255, 255, 0.15);">
+                    <a href="#" class="nav-link-custom text-danger" onclick="realizarLogout(); return false;">
+                        <div class="icon-box text-danger" style="background: rgba(239, 68, 68, 0.15);"><i class="bi bi-box-arrow-left"></i></div>
+                        <span class="text fw-bold">Sair</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="sidebar-footer">
+            <span>© 2026 AGEVAP</span>
+        </div>
+    </nav>
+
+    <main role="main" class="main-content-wrapper container-fluid">
+        @RenderBody()
+    </main>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Scripts Auth do Sistema de Vistorias -->
+    <script src="~/js/auth.js" asp-append-version="true"></script>
+
+
+
+    <!-- Verificando Autenticação -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // A menos que estejamos na página de Login, verifica a autenticação
+            if (!window.location.pathname.toLowerCase().includes('/home/login')) {
+                await verificarAutenticacao();
+            }
+
+            // Lógica do Menu Mobile
+            const sidebar = document.getElementById('sidebar');
+            const mobileToggle = document.getElementById('mobileSidebarToggle');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            if (mobileToggle) {
+                mobileToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                    if (sidebar.classList.contains('active')) {
+                        overlay.classList.remove('d-none');
+                        setTimeout(() => overlay.style.opacity = '1', 10);
+                    } else {
+                        overlay.style.opacity = '0';
+                        setTimeout(() => overlay.classList.add('d-none'), 300);
+                    }
+                });
+            }
+
+            if (overlay) {
+                overlay.addEventListener('click', () => {
+                    sidebar.classList.remove('active');
+                    overlay.style.opacity = '0';
+                    setTimeout(() => overlay.classList.add('d-none'), 300);
+                });
+            }
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

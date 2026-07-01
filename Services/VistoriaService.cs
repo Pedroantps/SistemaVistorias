@@ -1,14 +1,13 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using SistemaVistorias.Data;
 using SistemaVistorias.Models;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
 
 namespace SistemaVistorias.Services
 {
+    /// <summary>
+    /// Serviço encarregado de processar a lógica de negócios da Vistoria,
+    /// incluindo validação, atualização do estado de conservação e registro da data de vistoria.
+    /// </summary>
     public class VistoriaService : IVistoriaService
     {
         private readonly AppDbContext _context;

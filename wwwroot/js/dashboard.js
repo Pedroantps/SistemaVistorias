@@ -1,5 +1,9 @@
 let ativosDashboard = [];
 
+/**
+ * Executado quando a página do dashboard é carregada.
+ * Busca os dados na API e monta os cards e tabelas.
+ */
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("buscaTabela").addEventListener("input", renderizarTabela);
     document.getElementById("filtroContrato").addEventListener("change", renderizarTabela);
@@ -8,12 +12,21 @@ document.addEventListener("DOMContentLoaded", () => {
     carregarDashboard();
 });
 
+/**
+ * Busca os dados consolidados no backend e os renderiza na tela (tabelas e gráficos numéricos).
+ * Centraliza o tratamento de erro em caso de falha de conexão e trava a UI.
+ */
 async function carregarDashboard() {
+    const btnAtualizar = document.getElementById("btnAtualizar");
+    if (btnAtualizar) {
+        btnAtualizar.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Atualizando...';
+        btnAtualizar.disabled = true;
+    }
     const alerta = document.getElementById("dashboardAlerta");
     alerta.classList.add("d-none");
 
     try {
-        const resposta = await fetch("http://localhost:5158/api/dashboard", {
+        const resposta = await fetch("/api/dashboard", {
             headers: obterHeadersAutenticados()
         });
         if (!resposta.ok) {
@@ -32,6 +45,11 @@ async function carregarDashboard() {
         alerta.innerText = error.message || "Erro ao contactar o servidor. Verifique se a API esta a correr.";
         alerta.classList.remove("d-none");
         document.getElementById("tabelaAtivos").innerHTML = '<tr><td colspan="9" class="empty-state">Nao foi possivel carregar os dados.</td></tr>';
+    } finally {
+        if (btnAtualizar) {
+            btnAtualizar.innerHTML = '<i class="bi bi-arrow-clockwise me-2"></i>Atualizar';
+            btnAtualizar.disabled = false;
+        }
     }
 }
 
@@ -143,22 +161,22 @@ function renderizarTabela() {
 
     tbody.innerHTML = filtrados.map(ativo => `
         <tr>
-            <td>
+            <td data-label="Patrimônio">
                 <strong>${escaparHtml(ativo.patrimonioAgevap)}</strong>
                 ${ativo.isAvulso ? '<span class="badge bg-warning text-dark ms-1" style="font-size: 0.65rem;" title="Cadastrado Manualmente">AVULSO</span>' : ''}
             </td>
-            <td>${escaparHtml(ativo.contratoGestao)}</td>
-            <td>${escaparHtml(ativo.descricao)}</td>
-            <td>${escaparHtml(ativo.condicaoFuncional)}</td>
-            <td>${escaparHtml(ativo.instalacaoEndereco)}</td>
-            <td>${renderizarStatus(ativo.vistoriado)}</td>
-            <td>${escaparHtml(ativo.novoEstadoConservacao || "-")}</td>
-            <td>${escaparHtml(ativo.numeroLaudo || "-")}</td>
-            <td>${formatarData(ativo.dataVistoria)}</td>
-            <td>${escaparHtml(ativo.usuarioVistoriador || "-")}</td>
-            <td>
+            <td data-label="Contrato" class="cell-truncate" title="${escaparHtml(ativo.contratoGestao)}">${escaparHtml(ativo.contratoGestao)}</td>
+            <td data-label="Descrição" class="cell-truncate" title="${escaparHtml(ativo.descricao)}">${escaparHtml(ativo.descricao)}</td>
+            <td data-label="Condição">${escaparHtml(ativo.condicaoFuncional)}</td>
+            <td data-label="Localização" class="cell-truncate" title="${escaparHtml(ativo.instalacaoEndereco)}">${escaparHtml(ativo.instalacaoEndereco)}</td>
+            <td data-label="Status">${renderizarStatus(ativo.vistoriado)}</td>
+            <td data-label="Novo Estado">${escaparHtml(ativo.novoEstadoConservacao || "-")}</td>
+            <td data-label="Laudo">${escaparHtml(ativo.numeroLaudo || "-")}</td>
+            <td data-label="Data">${formatarData(ativo.dataVistoria)}</td>
+            <td data-label="Vistoriador">${escaparHtml(ativo.usuarioVistoriador || "-")}</td>
+            <td data-label="Ações">
                 <button class="btn btn-sm btn-outline-primary" onclick="editarVistoria('${escaparHtml(ativo.patrimonioAgevap)}', '${escaparHtml(ativo.contratoGestao)}')" title="Editar Vistoria">
-                    <i class="bi bi-pencil-square"></i> Editar
+                    <i class="bi bi-pencil-square me-2"></i> Editar
                 </button>
             </td>
         </tr>
@@ -216,13 +234,17 @@ function escaparHtml(valor) {
         .replaceAll("'", "&#039;");
 }
 
+/**
+ * Executa a requisição DELETE para apagar o banco de dados. 
+ * Esta função bloqueia o botão de confirmação e controla a visibilidade do modal do Bootstrap.
+ */
 async function limparBancoDeDados() {
     const btnConfirmar = document.getElementById("btnConfirmarLimpeza");
     btnConfirmar.disabled = true;
     btnConfirmar.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Limpando...';
 
     try {
-        const resposta = await fetch("http://localhost:5158/api/importacao/limpar-banco", {
+        const resposta = await fetch("/api/importacao/limpar-banco", {
             method: "DELETE",
             headers: obterHeadersAutenticados()
         });
@@ -232,8 +254,11 @@ async function limparBancoDeDados() {
         }
 
         // Fecha o modal
-        const modal = bootstrap.Modal.getInstance(document.getElementById("modalLimparBanco"));
-        if (modal) modal.hide();
+        try {
+            const modalEl = document.getElementById("modalLimparBanco");
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+        } catch(e) { console.warn("Aviso ao fechar modal:", e); }
 
         // Recarrega o dashboard
         carregarDashboard();
@@ -255,6 +280,14 @@ async function limparBancoDeDados() {
     }
 }
 
+function abrirModalLimpeza() {
+    try {
+        const modal = new bootstrap.Modal(document.getElementById('modalLimparBanco'));
+        modal.show();
+    } catch(e) {
+        console.warn("Aviso ao abrir modal:", e);
+    }
+}
 
 function abrirModalAlterados() {
     const alterados = ativosDashboard.filter(a => a.condicaoOriginal);
@@ -265,16 +298,16 @@ function abrirModalAlterados() {
     } else {
         tbody.innerHTML = alterados.map(item => `
             <tr>
-                <td style="font-weight: 600;">${escaparHtml(item.patrimonioAgevap || item.patrimonioOrgaoGestor)}</td>
-                <td><span class="badge bg-light text-dark border">${escaparHtml(item.contratoGestao || "S/C")}</span></td>
-                <td>
+                <td data-label="Patrimônio" style="font-weight: 600;">${escaparHtml(item.patrimonioAgevap || item.patrimonioOrgaoGestor)}</td>
+                <td data-label="Contrato"><span class="badge bg-light text-dark border">${escaparHtml(item.contratoGestao || "S/C")}</span></td>
+                <td data-label="Descrição">
                     <div style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escaparHtml(item.descricao)}">
                         ${escaparHtml(item.descricao)}
                     </div>
                 </td>
-                <td><span class="badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">${escaparHtml(item.condicaoOriginal)}</span></td>
-                <td><span class="badge" style="background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca;">${escaparHtml(item.condicaoFuncional)}</span></td>
-                <td>${escaparHtml(item.usuarioVistoriador || "-")}</td>
+                <td data-label="Condição Orig."><span class="badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">${escaparHtml(item.condicaoOriginal)}</span></td>
+                <td data-label="Condição Atual"><span class="badge" style="background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca;">${escaparHtml(item.condicaoFuncional)}</span></td>
+                <td data-label="Vistoriador">${escaparHtml(item.usuarioVistoriador || "-")}</td>
             </tr>
         `).join("");
     }
