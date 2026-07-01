@@ -111,6 +111,14 @@ namespace SistemaVistorias.Services
 
             ativo.NovoEstadoConservacao = novoEstado;
             ativo.NumeroLaudo = numeroLaudo;
+            if (!string.IsNullOrEmpty(condicaoFuncional) && ativo.CondicaoFuncional != condicaoFuncional)
+            {
+                if (string.IsNullOrEmpty(ativo.CondicaoOriginal))
+                {
+                    ativo.CondicaoOriginal = ativo.CondicaoFuncional;
+                }
+                ativo.CondicaoFuncional = condicaoFuncional;
+            }
             if (caminhosFotos.Count > 0)
             {
                 ativo.CaminhoFotos = string.Join(";", caminhosFotos.Values);

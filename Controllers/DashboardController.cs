@@ -41,6 +41,7 @@ namespace SistemaVistorias.Controllers
 
             var ativos = await _context.Ativos
                 .AsNoTracking()
+                .Where(a => a.CondicaoFuncional.ToLower().Contains("inserv"))
                 .OrderBy(a => a.ContratoGestao)
                 .ThenBy(a => a.PatrimonioAgevap)
                 .Select(a => new
@@ -57,7 +58,8 @@ namespace SistemaVistorias.Controllers
                     a.DataVistoria,
                     a.UsuarioVistoriador,
                     Vistoriado = a.DataVistoria != null,
-                    IsAvulso = a.IsAvulso
+                    IsAvulso = a.IsAvulso,
+                    a.CondicaoOriginal
                 })
                 .ToListAsync();
 
@@ -78,6 +80,7 @@ namespace SistemaVistorias.Controllers
                     Total = total,
                     Vistoriados = vistoriados,
                     Pendentes = pendentes,
+                    AlteradosInservivel = ativos.Count(a => !string.IsNullOrEmpty(a.CondicaoOriginal)),
                     PercentualVistoriado = total == 0 ? 0 : Math.Round(vistoriados * 100m / total, 1)
                 },
                 PorContrato = ativos

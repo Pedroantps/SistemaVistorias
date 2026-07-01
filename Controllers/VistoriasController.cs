@@ -29,8 +29,11 @@ namespace SistemaVistorias.Controllers
             var ativo = await _vistoriaService.BuscarAtivoAsync(patrimonio, contrato);
             if (ativo == null)
                 return NotFound(new { mensagem = "Ativo nao encontrado." });
-                
-            return Ok(ativo);
+
+            bool isInservivel = !string.IsNullOrEmpty(ativo.CondicaoFuncional)
+                && ativo.CondicaoFuncional.ToLower().Contains("inserv");
+
+            return Ok(new { ativo, isInservivel });
         }
 
         [HttpPost("registrar")]

@@ -41,6 +41,7 @@ function renderizarResumo(resumo) {
     document.getElementById("totalItens").innerText = formatarNumero(resumo.total);
     document.getElementById("totalVistoriados").innerText = formatarNumero(resumo.vistoriados);
     document.getElementById("totalPendentes").innerText = formatarNumero(resumo.pendentes);
+    document.getElementById("totalAlterados").innerText = formatarNumero(resumo.alteradosInservivel || 0);
     document.getElementById("percentualVistoriado").innerText = `${formatarDecimal(percentual)}%`;
     document.getElementById("barraConclusao").style.width = `${Math.min(percentual, 100)}%`;
 }
@@ -114,7 +115,7 @@ function renderizarTabela() {
         const atendeStatus = !status
             || (status === "vistoriado" && ativo.vistoriado)
             || (status === "pendente" && !ativo.vistoriado);
-        
+
         const atendeOrigem = !origem
             || (origem === "avulso" && ativo.isAvulso)
             || (origem === "importado" && !ativo.isAvulso);
@@ -213,4 +214,71 @@ function escaparHtml(valor) {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+}
+
+async function limparBancoDeDados() {
+    const btnConfirmar = document.getElementById("btnConfirmarLimpeza");
+    btnConfirmar.disabled = true;
+    btnConfirmar.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Limpando...';
+
+    try {
+        const resposta = await fetch("http://localhost:5158/api/importacao/limpar-banco", {
+            method: "DELETE",
+            headers: obterHeadersAutenticados()
+        });
+
+        if (!resposta.ok) {
+            throw new Error("Erro ao limpar o banco de dados.");
+        }
+
+        // Fecha o modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById("modalLimparBanco"));
+        if (modal) modal.hide();
+
+        // Recarrega o dashboard
+        carregarDashboard();
+
+        // Feedback visual
+        const alerta = document.getElementById("dashboardAlerta");
+        alerta.className = "alert alert-success";
+        alerta.innerText = "Banco de dados limpo com sucesso!";
+        alerta.classList.remove("d-none");
+        setTimeout(() => alerta.classList.add("d-none"), 4000);
+    } catch (error) {
+        const alerta = document.getElementById("dashboardAlerta");
+        alerta.className = "alert alert-danger";
+        alerta.innerText = error.message;
+        alerta.classList.remove("d-none");
+    } finally {
+        btnConfirmar.disabled = false;
+        btnConfirmar.innerHTML = '<i class="bi bi-trash3 me-1"></i>Sim, limpar tudo';
+    }
+}
+
+
+function abrirModalAlterados() {
+    const alterados = ativosDashboard.filter(a => a.condicaoOriginal);
+    const tbody = document.getElementById("tabelaAlterados");
+
+    if (!alterados.length) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state text-center py-4">Nenhum item encontrado.</td></tr>';
+    } else {
+        tbody.innerHTML = alterados.map(item => `
+            <tr>
+                <td style="font-weight: 600;">${escaparHtml(item.patrimonioAgevap || item.patrimonioOrgaoGestor)}</td>
+                <td><span class="badge bg-light text-dark border">${escaparHtml(item.contratoGestao || "S/C")}</span></td>
+                <td>
+                    <div style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escaparHtml(item.descricao)}">
+                        ${escaparHtml(item.descricao)}
+                    </div>
+                </td>
+                <td><span class="badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">${escaparHtml(item.condicaoOriginal)}</span></td>
+                <td><span class="badge" style="background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca;">${escaparHtml(item.condicaoFuncional)}</span></td>
+                <td>${escaparHtml(item.usuarioVistoriador || "-")}</td>
+            </tr>
+        `).join("");
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('modalAlteradosInservivel'));
+    modal.show();
 }

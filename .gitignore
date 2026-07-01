@@ -2,6 +2,8 @@
 .env
 
 # Pastas de build do .NET (futuro)
-/backend/bin/
-/backend/obj/
-/backend/appsettings.Development.json
+/bin/
+/obj/
+/appsettings.Development.json
+
+/GestaoDeQualidade/

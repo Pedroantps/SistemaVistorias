@@ -324,6 +324,6 @@ C:\SistemaVistoria\obj\Debug\net10.0\backend.csproj.Up2Date
 C:\SistemaVistoria\obj\Debug\net10.0\backend.genruntimeconfig.cache
 C:\SistemaVistoria\obj\Debug\net10.0\ref\backend.dll
 C:\SistemaVistoria\obj\Debug\net10.0\compressed\zkynzonfx7-{0}-20hxvl19y2-20hxvl19y2.gz
-C:\SistemaVistoria\obj\Debug\net10.0\compressed\7s7ve73hi0-{0}-4dkh898lka-4dkh898lka.gz
-C:\SistemaVistoria\obj\Debug\net10.0\compressed\0hht18l9tz-{0}-5mqn4iwy7o-5mqn4iwy7o.gz
-C:\SistemaVistoria\obj\Debug\net10.0\compressed\sm5hqs3bi4-{0}-kit5jkuv6k-kit5jkuv6k.gz
+C:\SistemaVistoria\obj\Debug\net10.0\compressed\7s7ve73hi0-{0}-2yioz7mi5a-2yioz7mi5a.gz
+C:\SistemaVistoria\obj\Debug\net10.0\compressed\sm5hqs3bi4-{0}-bzekjjxug3-bzekjjxug3.gz
+C:\SistemaVistoria\obj\Debug\net10.0\compressed\0hht18l9tz-{0}-naakdhh940-naakdhh940.gz

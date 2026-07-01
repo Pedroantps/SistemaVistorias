@@ -90,10 +90,14 @@ namespace SistemaVistorias.Controllers
                     new[] { "anterior", "antigo" });
 
                 int colCondicao = ObterIndiceColuna(worksheet, linhaCabecalhoIndex,
-                    new[] { "condicao", "condição", "estado", "situacao", "situação", "conservacao", "conservação" },
+                    new[] { "condicao", "condição", "estado", "situacao", "situação" },
                     new[] { "anterior", "antigo" });
 
-                logsDiagnostico.Add($"<strong>{nomeAba}</strong> (Lida na linha {linhaCabecalhoIndex}): Colunas -> AGEVAP: {colAgevap}, Órgão: {colOrgao}, Desc: {colDescricao}, Local: {colInstalacao}, Cond: {colCondicao}, Contrato: {colContrato}");
+                int colQualidade = ObterIndiceColuna(worksheet, linhaCabecalhoIndex,
+                    new[] { "classificacao", "classificação", "qualidade", "conservacao", "conservação" },
+                    new[] { "anterior", "antigo" });
+
+                logsDiagnostico.Add($"<strong>{nomeAba}</strong> (Lida na linha {linhaCabecalhoIndex}): Colunas -> AGEVAP: {colAgevap}, Órgão: {colOrgao}, Desc: {colDescricao}, Local: {colInstalacao}, Cond: {colCondicao}, Qualidade: {colQualidade}, Contrato: {colContrato}");
 
                 if (colInstalacao == -1 || colCondicao == -1)
                 {
@@ -107,7 +111,17 @@ namespace SistemaVistorias.Controllers
                     if (linha.CellsUsed().Count() < 2) continue;
 
                     string instalacao = colInstalacao != -1 ? linha.Cell(colInstalacao).GetString().Trim() : "";
-                    string condicaoFuncional = colCondicao != -1 ? linha.Cell(colCondicao).GetString().Trim() : "";
+                    string condicaoFuncionalBruta = colCondicao != -1 ? linha.Cell(colCondicao).GetString().Trim() : "";
+                    string qualidadeBruta = colQualidade != -1 ? linha.Cell(colQualidade).GetString().Trim() : "";
+                    
+                    string condicaoFuncional = "";
+                    if (!string.IsNullOrEmpty(qualidadeBruta) && !string.IsNullOrEmpty(condicaoFuncionalBruta))
+                        condicaoFuncional = $"{qualidadeBruta} - {condicaoFuncionalBruta}";
+                    else if (!string.IsNullOrEmpty(qualidadeBruta))
+                        condicaoFuncional = qualidadeBruta;
+                    else
+                        condicaoFuncional = condicaoFuncionalBruta;
+
                     string contratoLido = colContrato != -1 ? linha.Cell(colContrato).GetString().Trim() : "";
                     string patrimonioAgevap = colAgevap != -1 ? linha.Cell(colAgevap).GetString().Trim() : "";
                     string patrimonioOrgao = colOrgao != -1 ? linha.Cell(colOrgao).GetString().Trim() : "";
@@ -115,20 +129,6 @@ namespace SistemaVistorias.Controllers
 
                     if (string.IsNullOrEmpty(patrimonioAgevap) && string.IsNullOrEmpty(patrimonioOrgao) && string.IsNullOrEmpty(descricao))
                     {
-                        continue;
-                    }
-
-                    string instNorm = RemoverAcentos(instalacao.ToLower());
-                    if (!instNorm.Contains("nova sede") && instNorm != "sede")
-                    {
-                        ignorados++;
-                        continue;
-                    }
-
-                    string condNorm = RemoverAcentos(condicaoFuncional.ToLower());
-                    if (string.IsNullOrEmpty(condNorm) || !condNorm.Contains("inserv"))
-                    {
-                        ignorados++;
                         continue;
                     }
 
@@ -168,13 +168,17 @@ namespace SistemaVistorias.Controllers
                     var ativoExistente = await _context.Ativos
                         .FirstOrDefaultAsync(a => a.PatrimonioAgevap == patrimonioAgevap && a.ContratoGestao == contratoPadronizado);
 
+                    // Também verifica entidades já adicionadas no lote atual (ainda não salvas no banco)
+                    ativoExistente ??= _context.ChangeTracker.Entries<Ativo>()
+                        .FirstOrDefault(e => e.Entity.PatrimonioAgevap == patrimonioAgevap && e.Entity.ContratoGestao == contratoPadronizado)
+                        ?.Entity;
+
                     if (ativoExistente != null)
                     {
                         ativoExistente.PatrimonioOrgaoGestor = patrimonioOrgao;
                         ativoExistente.Descricao = descricao;
                         ativoExistente.CondicaoFuncional = condicaoFuncional;
                         ativoExistente.InstalacaoEndereco = instalacao;
-                        _context.Ativos.Update(ativoExistente);
                         atualizados++;
                     }
                     else

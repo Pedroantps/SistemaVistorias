@@ -6,6 +6,7 @@ async function buscarAtivo() {
 
     if (!contrato || !patrimonio) {
         erro.classList.remove("d-none");
+        erro.className = "alert alert-danger";
         erro.innerText = "Por favor, selecione o contrato e introduza o número do património.";
         return;
     }
@@ -22,23 +23,46 @@ async function buscarAtivo() {
         });
         
         if (resposta.ok) {
-            const ativo = await resposta.json();
-            localStorage.setItem("vistoriaEmAndamento", JSON.stringify(ativo));
-            window.location.href = "/Home/Vistoria";
+            const dados = await resposta.json();
+            const ativo = dados.ativo;
+
+            if (dados.isInservivel) {
+                // Fluxo normal: item é inservível, abre vistoria direto
+                localStorage.setItem("vistoriaEmAndamento", JSON.stringify(ativo));
+                window.location.href = "/Home/Vistoria";
+            } else {
+                // Item existe mas NÃO é inservível
+                erro.classList.remove("d-none");
+                erro.className = "alert alert-warning";
+                erro.innerHTML = `
+                    <strong><i class="bi bi-exclamation-triangle me-1"></i>Este bem não está cadastrado como inservível.</strong><br>
+                    Condição funcional atual: <em>${escaparHtmlApp(ativo.condicaoFuncional || "Não informada")}</em><br><br>
+                    Deseja cadastrá-lo como <strong>inservível</strong> e iniciar a vistoria?<br><br>
+                    <button type="button" class="btn btn-warning btn-sm" id="btnCadastrarInservivel">
+                        <i class="bi bi-arrow-repeat me-1"></i> Cadastrar como Inservível e Vistoriar
+                    </button>
+                `;
+                // Usa event listener ao invés de onclick inline para evitar problemas de escape
+                document.getElementById("btnCadastrarInservivel").addEventListener("click", function() {
+                    ativo.marcarInservivel = true;
+                    localStorage.setItem("vistoriaEmAndamento", JSON.stringify(ativo));
+                    window.location.href = "/Home/Vistoria";
+                });
+            }
         } else {
             erro.classList.remove("d-none");
-            erro.classList.remove("alert-danger");
-            erro.classList.add("alert-warning");
+            erro.className = "alert alert-warning";
             erro.innerHTML = `
                 <strong>Ativo não encontrado.</strong><br>
                 O patrimônio não consta na base de dados oficial. Deseja registrá-lo manualmente?<br><br>
-                <button type="button" class="btn btn-warning btn-sm" onclick="registrarAvulso('${patrimonio}', '${contrato}')">
+                <button type="button" class="btn btn-warning btn-sm" onclick="registrarAvulso('${escaparHtmlApp(patrimonio)}', '${escaparHtmlApp(contrato)}')">
                     <i class="bi bi-plus-circle me-1"></i> Registrar Vistoria Avulsa
                 </button>
             `;
         }
     } catch (error) {
         erro.classList.remove("d-none");
+        erro.className = "alert alert-danger";
         erro.innerText = "Erro ao contactar o servidor. Verifique se a API está a correr.";
     } finally {
         btn.innerHTML = textoOriginal;
@@ -55,3 +79,12 @@ window.registrarAvulso = function(patrimonio, contrato) {
     localStorage.setItem("vistoriaEmAndamento", JSON.stringify(ativo));
     window.location.href = "/Home/Vistoria";
 };
+
+function escaparHtmlApp(valor) {
+    return String(valor || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}

@@ -35,6 +35,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById('inputLocalizacao').required = true;
             }
 
+            // Se veio da busca como "não-inservível", marca a condição para atualizar no salvamento
+            if (ativo.marcarInservivel) {
+                document.getElementById('hiddenCondicao').value = "Inservível";
+
+                // Mostra alerta informativo
+                const alerta = document.getElementById('mensagemAlerta');
+                alerta.className = "alert alert-info mt-4";
+                alerta.innerHTML = '<i class="bi bi-info-circle-fill me-2"></i><strong>Atenção:</strong> Ao salvar esta vistoria, a condição funcional deste bem será atualizada para <strong>Inservível</strong>.';
+                alerta.classList.remove("d-none");
+            }
+
             // Preenche os campos do formulário se já existir vistoria
             if (ativo.vistoriado) {
                 if (ativo.novoEstadoConservacao) {

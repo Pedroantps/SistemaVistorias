@@ -20,6 +20,8 @@ namespace SistemaVistorias.Models
 
         public string CondicaoFuncional { get; set; } = string.Empty;
 
+        public string? CondicaoOriginal { get; set; }
+
         public string InstalacaoEndereco { get; set; } = string.Empty;
 
         public bool IsAvulso { get; set; } = false;
