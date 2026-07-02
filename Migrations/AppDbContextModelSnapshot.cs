@@ -55,6 +55,9 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("InstalacaoOriginal")
+                        .HasColumnType("longtext");
+
                     b.Property<bool>("IsAvulso")
                         .HasColumnType("tinyint(1)");
 
@@ -66,6 +69,9 @@ namespace backend.Migrations
 
                     b.Property<string>("PatrimonioOrgaoGestor")
                         .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("PatrimonioOrgaoOriginal")
                         .HasColumnType("longtext");
 
                     b.Property<string>("UsuarioVistoriador")

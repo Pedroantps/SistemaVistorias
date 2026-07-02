@@ -48,17 +48,18 @@ namespace SistemaVistorias.Controllers
             using var stream = new MemoryStream();
             await arquivo.CopyToAsync(stream);
 
-            using var workbook = new XLWorkbook(stream);
+            try
+            {
+                using var workbook = new XLWorkbook(stream);
 
-            var abasParaLer = new[] { "Patrimônio Adquirido", "Patrimônio Cedido INEA GUANDU", "Patrimônio Cedido INEA BG" };
+                var abasParaLer = new[] { "Patrimônio Adquirido", "Patrimônio Cedido INEA GUANDU", "Patrimônio Cedido INEA BG" };
 
             var contratosPermitidos = new[] {
                 "CG INEA GUANDU",
                 "CG INEA CBHs",
                 "CG INEA BG",
                 "CG INEA Nº 003/2010 - CEDIDO",
-                "CG INEA Nº 002/2017 - CEDIDO",
-                "Patrimônio Adquirido"
+                "CG INEA Nº 002/2017 - CEDIDO"
             };
 
             int cadastrados = 0;
@@ -76,11 +77,11 @@ namespace SistemaVistorias.Controllers
 
                 int linhaCabecalhoIndex = EncontrarLinhaCabecalho(worksheet, nomeAba == "Patrimônio Adquirido" ? 14 : 10);
                 int colAgevap = ObterIndiceColuna(worksheet, linhaCabecalhoIndex, new[] { "agevap", "adquirido" });
-                int colOrgao = ObterIndiceColuna(worksheet, linhaCabecalhoIndex, new[] { "orgao", "órgão", "inea", "cedido", "tombamento" });
+                int colOrgao = ObterIndiceColuna(worksheet, linhaCabecalhoIndex, new[] { "orgao", "órgão", "inea", "cedido" });
                 int colDescricao = ObterIndiceColuna(worksheet, linhaCabecalhoIndex, new[] { "descricao", "descrição", "especificacao", "especificação", "bem" });
                 int colContrato = ObterIndiceColuna(worksheet, linhaCabecalhoIndex, new[] { "contrato", "cg", "origem" });
                 int colInstalacao = ObterIndiceColuna(worksheet, linhaCabecalhoIndex,
-                    new[] { "instalacao", "instalação", "local", "setor", "unidade" },
+                    new[] { "instalação + endereço", "instalacao + endereco" },
                     new[] { "anterior", "antigo" });
 
                 int colCondicao = ObterIndiceColuna(worksheet, linhaCabecalhoIndex,
@@ -118,6 +119,12 @@ namespace SistemaVistorias.Controllers
 
                     string contratoLido = colContrato != -1 ? linha.Cell(colContrato).GetString().Trim() : "";
                     string patrimonioAgevap = colAgevap != -1 ? linha.Cell(colAgevap).GetString().Trim() : "";
+                    
+                    if (!string.IsNullOrEmpty(patrimonioAgevap) && int.TryParse(patrimonioAgevap, out _))
+                    {
+                        patrimonioAgevap = patrimonioAgevap.PadLeft(3, '0');
+                    }
+
                     string patrimonioOrgao = colOrgao != -1 ? linha.Cell(colOrgao).GetString().Trim() : "";
                     string descricao = colDescricao != -1 ? linha.Cell(colDescricao).GetString().Trim() : "";
 
@@ -133,7 +140,7 @@ namespace SistemaVistorias.Controllers
                         else if (nomeAba.Contains("Adquirido", StringComparison.OrdinalIgnoreCase)) contratoLido = "Patrimônio Adquirido";
                     }
 
-                    string contratoPadronizado = contratosPermitidos.FirstOrDefault(c =>
+                    string? contratoPadronizado = contratosPermitidos.FirstOrDefault(c =>
                         contratoLido.Contains(c, StringComparison.OrdinalIgnoreCase) ||
                         (c == "CG INEA GUANDU" && contratoLido.Contains("DUANDU", StringComparison.OrdinalIgnoreCase))
                     );
@@ -200,7 +207,12 @@ namespace SistemaVistorias.Controllers
             }
             mensagemHtml += "</ul>";
 
-            return Ok(new { mensagem = mensagemHtml });
+                return Ok(new { mensagem = mensagemHtml });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { mensagem = "Erro ao processar o arquivo Excel: " + ex.Message });
+            }
         }
 
         /// <summary>

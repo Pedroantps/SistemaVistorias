@@ -2,19 +2,35 @@
  * Carrega os dados da vistoria em andamento a partir do LocalStorage.
  * Executado ao carregar a página de vistoria (Vistoria.cshtml).
  */
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     
+    // 1. Carregar instalações dinamicamente do banco
+    const selectLocalizacao = document.getElementById('inputLocalizacao');
+    if (selectLocalizacao) {
+        try {
+            const resInstalacoes = await fetch('/api/vistorias/instalacoes', { headers: window.obterHeadersAutenticados ? window.obterHeadersAutenticados() : {} });
+            if (resInstalacoes.ok) {
+                const instalacoes = await resInstalacoes.json();
+                instalacoes.forEach(inst => {
+                    const opt = document.createElement('option');
+                    opt.value = inst;
+                    opt.textContent = inst;
+                    selectLocalizacao.appendChild(opt);
+                });
+            }
+        } catch (e) {
+            console.warn("Erro ao buscar instalações", e);
+        }
+    }
+
     /**
      * Recupera os dados parciais de uma vistoria do LocalStorage e hidrata o formulário de preenchimento.
-     * 
-     * Por que usamos LocalStorage aqui? 
-     * Como o fluxo de vistoria pode ser interrompido acidentalmente (ou recarregado pela navegação), 
-     * persistir o estado localmente evita que o vistoriador perca todo o preenchimento de dados de um ativo.
-     * Após o preenchimento bem-sucedido na tela, os dados são ejetados do armazenamento para evitar sujeira.
      */
     const dadosSalvos = localStorage.getItem("vistoriaEmAndamento");
 
     if (dadosSalvos) {
+        const lblPatrimonio = document.getElementById('lblPatrimonio');
+        if (!lblPatrimonio) return;
         try {
             const ativo = JSON.parse(dadosSalvos);
 
@@ -34,23 +50,23 @@ document.addEventListener("DOMContentLoaded", () => {
             if (ativo.isNovo) {
                 // Habilita edição
                 document.getElementById('inputDescricao').removeAttribute('readonly');
-                document.getElementById('inputLocalizacao').removeAttribute('readonly');
-                document.getElementById('inputInea').removeAttribute('readonly');
                 
                 // Torna obrigatório
                 document.getElementById('inputDescricao').required = true;
                 document.getElementById('inputLocalizacao').required = true;
             }
 
-            // Se veio da busca como "não-inservível", marca a condição para atualizar no salvamento
+            // Se veio da busca como "não-inservível", preserva a condição antiga
             if (ativo.marcarInservivel) {
-                document.getElementById('hiddenCondicao').value = "Inservível";
+                document.getElementById('hiddenCondicao').value = ativo.condicaoFuncional || "";
 
                 // Mostra alerta informativo
                 const alerta = document.getElementById('mensagemAlerta');
-                alerta.className = "alert alert-info mt-4";
-                alerta.innerHTML = '<i class="bi bi-info-circle-fill me-2"></i><strong>Atenção:</strong> Ao salvar esta vistoria, a condição funcional deste bem será atualizada para <strong>Inservível</strong>.';
+                alerta.className = "alert alert-warning mt-4";
+                alerta.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2"></i><strong>Atenção:</strong> Este bem constava como <strong>${ativo.condicaoFuncional || "Regular"}</strong> na base de dados. Registre o Novo Estado de Conservação abaixo.`;
                 alerta.classList.remove("d-none");
+            } else {
+                document.getElementById('hiddenCondicao').value = ativo.condicaoFuncional || "";
             }
 
             // Preenche os campos do formulário se já existir vistoria

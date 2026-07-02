@@ -16,8 +16,10 @@ let modoRegistro = false;
 })();
 
 // ---- Formulário ----
-document.getElementById('formLogin').addEventListener('submit', async function(e) {
-    e.preventDefault();
+const formLogin = document.getElementById('formLogin');
+if (formLogin) {
+    formLogin.addEventListener('submit', async function(e) {
+        e.preventDefault();
     ocultarAlerta();
 
     const usuario = document.getElementById('inputUsuario').value.trim();
@@ -67,7 +69,8 @@ document.getElementById('formLogin').addEventListener('submit', async function(e
         btn.disabled = false;
         btn.innerHTML = textoOriginal;
     }
-});
+    });
+}
 
 // ---- Alternar Login / Registro ----
 function alternarModo(e) {

@@ -17,8 +17,10 @@ function mostrarNomeArquivo() {
 }
 
 // Lida com o envio do formulário
-document.getElementById('formImportacao').addEventListener('submit', async function(event) {
-    event.preventDefault();
+const formImportacao = document.getElementById('formImportacao');
+if (formImportacao) {
+    formImportacao.addEventListener('submit', async function(event) {
+        event.preventDefault();
     
     const fileInput = document.getElementById('arquivoExcel');
     const file = fileInput.files[0];
@@ -76,4 +78,5 @@ document.getElementById('formImportacao').addEventListener('submit', async funct
         spinner.classList.add('d-none');
         icone.classList.remove('d-none');
     }
-});
+    });
+}

@@ -19,8 +19,29 @@ namespace SistemaVistorias.Services
 
         public async Task<Ativo?> BuscarAtivoAsync(string patrimonio, string contrato)
         {
+            string patrimonioUnpadded = patrimonio;
+            string patrimonioPadded = patrimonio;
+            string ogPadded = $"OG-{patrimonio}";
+            string ogUnpadded = $"OG-{patrimonio}";
+
+            if (!string.IsNullOrEmpty(patrimonio) && int.TryParse(patrimonio, out _))
+            {
+                patrimonioPadded = patrimonio.PadLeft(3, '0');
+                patrimonioUnpadded = int.Parse(patrimonio).ToString();
+                ogPadded = $"OG-{patrimonioPadded}";
+                ogUnpadded = $"OG-{patrimonioUnpadded}";
+            }
+
             return await _context.Ativos
-                .FirstOrDefaultAsync(a => a.PatrimonioAgevap == patrimonio && a.ContratoGestao == contrato);
+                .FirstOrDefaultAsync(a => (
+                    a.PatrimonioAgevap == patrimonioPadded || 
+                    a.PatrimonioAgevap == patrimonioUnpadded ||
+                    a.PatrimonioAgevap == ogPadded ||
+                    a.PatrimonioAgevap == ogUnpadded ||
+                    a.PatrimonioOrgaoGestor == patrimonioPadded ||
+                    a.PatrimonioOrgaoGestor == patrimonioUnpadded ||
+                    a.PatrimonioOrgaoGestor == patrimonio
+                ) && a.ContratoGestao == contrato);
         }
 
         public async Task<(bool Sucesso, string Mensagem)> RegistrarVistoriaAsync(
@@ -38,6 +59,11 @@ namespace SistemaVistorias.Services
             string? instalacaoEndereco = null,
             string? patrimonioInea = null)
         {
+            if (!string.IsNullOrEmpty(patrimonioAgevap) && int.TryParse(patrimonioAgevap, out _))
+            {
+                patrimonioAgevap = patrimonioAgevap.PadLeft(3, '0');
+            }
+
             var ativo = await BuscarAtivoAsync(patrimonioAgevap, contratoGestao);
             
             if (ativo == null)
@@ -62,8 +88,9 @@ namespace SistemaVistorias.Services
                 _context.Ativos.Add(ativo);
             }
 
+            var patrimonioParaPasta = ativo.PatrimonioAgevap; // Garante usar a chave primária real do ativo encontrado/criado
             var contratoSeguro = string.Join("-", contratoGestao.Split(Path.GetInvalidFileNameChars()));
-            var pastaDestino = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "fotos_vistorias", contratoSeguro, patrimonioAgevap, "fotos");
+            var pastaDestino = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "fotos_vistorias", contratoSeguro, patrimonioParaPasta, "fotos");
             if (!Directory.Exists(pastaDestino))
                 Directory.CreateDirectory(pastaDestino);
 
@@ -99,7 +126,7 @@ namespace SistemaVistorias.Services
                     {
                         await novaFoto.CopyToAsync(stream);
                     }
-                    caminhosFotos[posicao] = $"{contratoSeguro}/{patrimonioAgevap}/fotos/{nomeFicheiro}";
+                    caminhosFotos[posicao] = $"{contratoSeguro}/{patrimonioParaPasta}/fotos/{nomeFicheiro}";
                 }
             }
 
@@ -118,6 +145,22 @@ namespace SistemaVistorias.Services
                 }
                 ativo.CondicaoFuncional = condicaoFuncional;
             }
+            if (!string.IsNullOrEmpty(instalacaoEndereco) && ativo.InstalacaoEndereco != instalacaoEndereco)
+            {
+                if (string.IsNullOrEmpty(ativo.InstalacaoOriginal))
+                {
+                    ativo.InstalacaoOriginal = ativo.InstalacaoEndereco;
+                }
+                ativo.InstalacaoEndereco = instalacaoEndereco;
+            }
+            if (!string.IsNullOrEmpty(patrimonioInea) && ativo.PatrimonioOrgaoGestor != patrimonioInea)
+            {
+                if (string.IsNullOrEmpty(ativo.PatrimonioOrgaoOriginal))
+                {
+                    ativo.PatrimonioOrgaoOriginal = ativo.PatrimonioOrgaoGestor;
+                }
+                ativo.PatrimonioOrgaoGestor = patrimonioInea;
+            }
             if (caminhosFotos.Count > 0)
             {
                 ativo.CaminhoFotos = string.Join(";", caminhosFotos.Values);
@@ -128,6 +171,15 @@ namespace SistemaVistorias.Services
             await _context.SaveChangesAsync();
 
             return (true, $"Vistoria concluida com sucesso! Registrada por {usuario.NomeCompleto} ({usuario.NomeUsuario}).");
+        }
+        public async Task<List<string>> ObterInstalacoesAsync()
+        {
+            return await _context.Ativos
+                .Where(a => !string.IsNullOrEmpty(a.InstalacaoEndereco))
+                .Select(a => a.InstalacaoEndereco)
+                .Distinct()
+                .OrderBy(i => i)
+                .ToListAsync();
         }
     }
 }

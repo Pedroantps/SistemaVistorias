@@ -101,5 +101,12 @@ namespace SistemaVistorias.Controllers
 
             return Ok(new { mensagem = resultado.Mensagem });
         }
+
+        [HttpGet("instalacoes")]
+        public async Task<IActionResult> ObterInstalacoes()
+        {
+            var instalacoes = await _vistoriaService.ObterInstalacoesAsync();
+            return Ok(instalacoes);
+        }
     }
 }

@@ -30,12 +30,19 @@ namespace SistemaVistorias.Services
         {
             try
             {
-                var ativosVistoriados = await _context.Ativos
+                var ativosVistoriadosBd = await _context.Ativos
                     .AsNoTracking()
                     .Where(a => a.DataVistoria != null)
-                    .OrderBy(a => a.ContratoGestao)
-                    .ThenBy(a => a.PatrimonioAgevap)
                     .ToListAsync();
+
+                var ativosVistoriados = ativosVistoriadosBd
+                    .OrderBy(a => a.ContratoGestao)
+                    .ThenBy(a => {
+                        if (int.TryParse(a.PatrimonioAgevap, out _))
+                            return a.PatrimonioAgevap.PadLeft(3, '0');
+                        return a.PatrimonioAgevap;
+                    })
+                    .ToList();
 
                 if (ativosVistoriados.Count == 0)
                     return (false, "Nenhum bem com vistoria realizada foi encontrado. Realize vistorias primeiro.", null, string.Empty);
@@ -100,7 +107,7 @@ namespace SistemaVistorias.Services
                 {
                     if (moldeDetalhes != null || moldeFotos != null)
                     {
-                        Word.Table novaTabela = null;
+                        Word.Table? novaTabela = null;
                         
                         if (moldeDetalhes != null)
                         {
@@ -127,7 +134,11 @@ namespace SistemaVistorias.Services
                             }
                         }
                         
-                        posicaoAtual = posicaoAtual.InsertAfterSelf(novaTabela!);
+                        if (novaTabela != null)
+                        {
+                            ManterTabelaNaMesmaPagina(novaTabela);
+                            posicaoAtual = posicaoAtual.InsertAfterSelf(novaTabela);
+                        }
                     }
                     
                     posicaoAtual = posicaoAtual.InsertAfterSelf(new Word.Paragraph(new Word.Run(new Word.Text(""))));
@@ -170,7 +181,13 @@ namespace SistemaVistorias.Services
                 var rotulo = celulas[0].InnerText.ToLower();
 
                 if (rotulo.Contains("contrato")) SubstituirTextoCelula(linha, ativo.ContratoGestao);
-                else if (rotulo.Contains("agevap")) SubstituirTextoCelula(linha, ativo.PatrimonioAgevap);
+                else if (rotulo.Contains("agevap")) 
+                {
+                    string agevapFormat = ativo.PatrimonioAgevap;
+                    if (int.TryParse(agevapFormat, out _))
+                        agevapFormat = agevapFormat.PadLeft(3, '0');
+                    SubstituirTextoCelula(linha, agevapFormat);
+                }
                 else if (rotulo.Contains("inea")) SubstituirTextoCelula(linha, ativo.PatrimonioOrgaoGestor);
                 else if (rotulo.Contains("descri")) SubstituirTextoCelula(linha, ativo.Descricao);
                 else if (rotulo.Contains("endere") || rotulo.Contains("localiza")) SubstituirTextoCelula(linha, ativo.InstalacaoEndereco);
@@ -228,7 +245,7 @@ namespace SistemaVistorias.Services
                 foreach (var p in linhaFoto.Descendants<Word.Paragraph>())
                 {
                     if (p.ParagraphProperties == null) p.PrependChild(new Word.ParagraphProperties());
-                    p.ParagraphProperties.Justification = new Word.Justification { Val = Word.JustificationValues.Center };
+                    p.ParagraphProperties!.Justification = new Word.Justification { Val = Word.JustificationValues.Center };
                 }
 
                 // Legenda final que sera usada
@@ -240,7 +257,7 @@ namespace SistemaVistorias.Services
                 for (int c = 0; c < celulasLegenda.Count; c++)
                 {
                     var textoCelula = celulasLegenda[c].InnerText;
-                    string fotoRelativa = null;
+                    string? fotoRelativa = null;
 
                     if (textoCelula.Contains("Esquerda")) fotoRelativa = listaFotos.FirstOrDefault(f => f.Contains("Esquerda")) ?? (listaFotos.Length > 0 ? listaFotos[0] : null);
                     else if (textoCelula.Contains("Direita")) fotoRelativa = listaFotos.FirstOrDefault(f => f.Contains("Direita")) ?? (listaFotos.Length > 1 ? listaFotos[1] : null);
@@ -358,6 +375,39 @@ namespace SistemaVistorias.Services
 
             paragraph.Append(new Run(runProperties, new Text(texto) { Space = SpaceProcessingModeValues.Preserve }));
             return paragraph;
+        }
+
+        private static void ManterTabelaNaMesmaPagina(Word.Table tabela)
+        {
+            var linhas = tabela.Elements<Word.TableRow>().ToList();
+            foreach (var linha in linhas)
+            {
+                var trPr = linha.GetFirstChild<Word.TableRowProperties>();
+                if (trPr == null)
+                {
+                    trPr = new Word.TableRowProperties();
+                    linha.InsertAt(trPr, 0);
+                }
+                if (trPr.GetFirstChild<Word.CantSplit>() == null)
+                {
+                    trPr.Append(new Word.CantSplit());
+                }
+            }
+
+            var paragrafos = tabela.Descendants<Word.Paragraph>().ToList();
+            for (int i = 0; i < paragrafos.Count - 1; i++)
+            {
+                var p = paragrafos[i];
+                if (p.ParagraphProperties == null)
+                {
+                    p.ParagraphProperties = new Word.ParagraphProperties();
+                }
+                
+                if (p.ParagraphProperties.GetFirstChild<Word.KeepNext>() == null)
+                {
+                    p.ParagraphProperties.AppendChild(new Word.KeepNext());
+                }
+            }
         }
     }
 }

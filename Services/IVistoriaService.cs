@@ -19,5 +19,7 @@ namespace SistemaVistorias.Services
             string? condicaoFuncional = null,
             string? instalacaoEndereco = null,
             string? patrimonioInea = null);
+            
+        Task<List<string>> ObterInstalacoesAsync();
     }
 }

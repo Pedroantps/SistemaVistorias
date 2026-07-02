@@ -7,15 +7,16 @@
                     <h1 class="page-title">Dashboard de Vistorias</h1>
                     <p class="page-subtitle">Acompanhamento dos bens cadastrados e do andamento das vistorias.</p>
                 </div>
-                <div class="d-flex flex-wrap" style="gap: 15px;">
-                    <button id="btnAtualizar" type="button" class="btn btn-outline-secondary" style="margin-right: 10px;" onclick="carregarDashboard()">
-                        <i class="bi bi-arrow-clockwise me-2"></i>Atualizar
+
+                <div class="d-flex action-btn-group pb-1">
+                    <button id="btnAtualizar" type="button" class="btn btn-outline-secondary text-nowrap" onclick="carregarDashboard()">
+                        <i class="bi bi-arrow-clockwise"></i> <span>Atualizar</span>
                     </button>
-                    <button id="btnRelatorio" type="button" class="btn btn-primary" style="margin-right: 10px;" onclick="baixarRelatorioDesfazimento()">
-                        <i class="bi bi-file-earmark-pdf me-2"></i>Gerar Relatório
+                    <button id="btnRelatorio" type="button" class="btn btn-primary text-nowrap" onclick="baixarRelatorioDesfazimento()">
+                        <i class="bi bi-file-earmark-pdf"></i> <span>Gerar Relatório</span>
                     </button>
-                    <button type="button" class="btn btn-outline-danger" onclick="abrirModalLimpeza()">
-                        <i class="bi bi-trash3 me-2"></i>Limpar Banco
+                    <button type="button" class="btn btn-outline-danger text-nowrap" onclick="abrirModalLimpeza()">
+                        <i class="bi bi-trash3"></i> <span>Limpar Banco</span>
                     </button>
                 </div>
             </div>
@@ -67,8 +68,8 @@
                         <div class="d-flex align-items-center gap-3">
                             <div class="metric-icon" style="background: #ffedd5; color: #c2410c; width: 40px; height: 40px; font-size: 1.2rem;"><i class="bi bi-exclamation-circle"></i></div>
                             <div>
-                                <div class="metric-label" style="color: #c2410c; margin-bottom: 2px;">Alterados para Inservível</div>
-                                <div style="font-size: 0.85rem; color: #9a3412;">Bens que tinham outra condição e foram reclassificados na vistoria.</div>
+                                <div class="metric-label" style="color: #c2410c; margin-bottom: 2px;">Bens com Informações Alteradas</div>
+                                <div style="font-size: 0.85rem; color: #9a3412;">Bens que tiveram informações alteradas durante a vistoria.</div>
                             </div>
                         </div>
                         <div class="d-flex align-items-center gap-3">
@@ -175,21 +176,22 @@
                 <div class="modal-content" style="border-radius: 16px; border: none;">
                     <div class="modal-header" style="border-bottom: 1px solid #e7edf4; background: #fff8f1; border-radius: 16px 16px 0 0;">
                         <h5 class="modal-title" id="modalAlteradosLabel" style="font-weight: 700; color: #9a3412;">
-                            <i class="bi bi-exclamation-circle me-2"></i>Bens Alterados para Inservível
+                            <i class="bi bi-exclamation-circle me-2"></i>Bens com Informações Alteradas na Vistoria
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
                     </div>
-                    <div class="modal-body p-0">
-                        <div class="table-wrap" style="border: none; border-radius: 0;">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead>
+                    <div class="modal-body p-4">
+                        <div class="table-wrap">
+                            <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                                <thead style="background-color: #f8fafc; border-bottom: 2px solid #e2e8f0; color: #475569; font-weight: 600;">
                                     <tr>
-                                        <th>Patrimônio</th>
-                                        <th>Contrato</th>
-                                        <th>Descrição</th>
-                                        <th>Condição Original</th>
-                                        <th>Condição Atual</th>
-                                        <th>Vistoriador</th>
+                                        <th class="py-3 px-3">Patrimônio AGEVAP</th>
+                                        <th class="py-3 px-3">Contrato</th>
+                                        <th class="py-3 px-3">Patrimônio Órgão Gestor</th>
+                                        <th class="py-3 px-3">Descrição</th>
+                                        <th class="py-3 px-3">Instalação</th>
+                                        <th class="py-3 px-3">Condição Funcional</th>
+                                        <th class="py-3 px-3">Vistoriador</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tabelaAlterados">
@@ -201,6 +203,9 @@
                         </div>
                     </div>
                     <div class="modal-footer" style="border-top: 1px solid #e7edf4;">
+                        <button type="button" class="btn btn-success" onclick="exportarAlteradosExcel()">
+                            <i class="bi bi-file-earmark-excel me-1"></i> Exportar Excel
+                        </button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                     </div>
                 </div>

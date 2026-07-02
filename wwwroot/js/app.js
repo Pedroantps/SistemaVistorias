@@ -58,10 +58,7 @@ async function buscarAtivo() {
             erro.className = "alert alert-warning";
             erro.innerHTML = `
                 <strong>Ativo não encontrado.</strong><br>
-                O patrimônio não consta na base de dados oficial. Deseja registrá-lo manualmente?<br><br>
-                <button type="button" class="btn btn-warning btn-sm" onclick="registrarAvulso('${escaparHtmlApp(patrimonio)}', '${escaparHtmlApp(contrato)}')">
-                    <i class="bi bi-plus-circle me-1"></i> Registrar Vistoria Avulsa
-                </button>
+                O patrimônio não consta na base de dados oficial.
             `;
         }
     } catch (error) {
@@ -73,16 +70,6 @@ async function buscarAtivo() {
         btn.disabled = false;
     }
 }
-
-window.registrarAvulso = function(patrimonio, contrato) {
-    const ativo = {
-        patrimonioAgevap: patrimonio,
-        contratoGestao: contrato,
-        isNovo: true
-    };
-    localStorage.setItem("vistoriaEmAndamento", JSON.stringify(ativo));
-    window.location.href = "/Home/Vistoria";
-};
 
 function escaparHtmlApp(valor) {
     return String(valor || "")

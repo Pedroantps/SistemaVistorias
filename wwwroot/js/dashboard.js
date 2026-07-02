@@ -5,11 +5,15 @@ let ativosDashboard = [];
  * Busca os dados na API e monta os cards e tabelas.
  */
 document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("buscaTabela").addEventListener("input", renderizarTabela);
-    document.getElementById("filtroContrato").addEventListener("change", renderizarTabela);
-    document.getElementById("filtroStatus").addEventListener("change", renderizarTabela);
-    document.getElementById("filtroOrigem").addEventListener("change", renderizarTabela);
-    carregarDashboard();
+    const buscaTabela = document.getElementById("buscaTabela");
+    if (buscaTabela) {
+        buscaTabela.addEventListener("input", renderizarTabela);
+        document.getElementById("filtroContrato").addEventListener("change", renderizarTabela);
+        document.getElementById("filtroStatus").addEventListener("change", renderizarTabela);
+        document.getElementById("filtroOrigem").addEventListener("change", renderizarTabela);
+        window.addEventListener("resize", ajustarTabelaNotebook);
+        carregarDashboard();
+    }
 });
 
 /**
@@ -59,7 +63,7 @@ function renderizarResumo(resumo) {
     document.getElementById("totalItens").innerText = formatarNumero(resumo.total);
     document.getElementById("totalVistoriados").innerText = formatarNumero(resumo.vistoriados);
     document.getElementById("totalPendentes").innerText = formatarNumero(resumo.pendentes);
-    document.getElementById("totalAlterados").innerText = formatarNumero(resumo.alteradosInservivel || 0);
+    document.getElementById("totalAlterados").innerText = formatarNumero(resumo.alterados || 0);
     document.getElementById("percentualVistoriado").innerText = `${formatarDecimal(percentual)}%`;
     document.getElementById("barraConclusao").style.width = `${Math.min(percentual, 100)}%`;
 }
@@ -175,12 +179,14 @@ function renderizarTabela() {
             <td data-label="Data">${formatarData(ativo.dataVistoria)}</td>
             <td data-label="Vistoriador">${escaparHtml(ativo.usuarioVistoriador || "-")}</td>
             <td data-label="Ações">
-                <button class="btn btn-sm btn-outline-primary" onclick="editarVistoria('${escaparHtml(ativo.patrimonioAgevap)}', '${escaparHtml(ativo.contratoGestao)}')" title="Editar Vistoria">
-                    <i class="bi bi-pencil-square me-2"></i> Editar
+                <button class="btn btn-primary" onclick="editarVistoria('${escaparHtml(ativo.patrimonioAgevap)}', '${escaparHtml(ativo.contratoGestao)}')" title="Editar Vistoria">
+                    <i class="bi bi-pencil-square"></i>
                 </button>
             </td>
         </tr>
     `).join("");
+
+    ajustarTabelaNotebook();
 }
 
 function renderizarStatus(vistoriado) {
@@ -290,28 +296,145 @@ function abrirModalLimpeza() {
 }
 
 function abrirModalAlterados() {
-    const alterados = ativosDashboard.filter(a => a.condicaoOriginal);
+    const alterados = ativosDashboard.filter(a => a.condicaoOriginal || a.instalacaoOriginal || a.patrimonioOrgaoOriginal || (a.novoEstadoConservacao && a.novoEstadoConservacao !== a.condicaoFuncional));
     const tbody = document.getElementById("tabelaAlterados");
 
     if (!alterados.length) {
-        tbody.innerHTML = '<tr><td colspan="6" class="empty-state text-center py-4">Nenhum item encontrado.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state text-center py-4">Nenhum item alterado na vistoria foi encontrado.</td></tr>';
     } else {
-        tbody.innerHTML = alterados.map(item => `
-            <tr>
-                <td data-label="Patrimônio" style="font-weight: 600;">${escaparHtml(item.patrimonioAgevap || item.patrimonioOrgaoGestor)}</td>
-                <td data-label="Contrato"><span class="badge bg-light text-dark border">${escaparHtml(item.contratoGestao || "S/C")}</span></td>
-                <td data-label="Descrição">
-                    <div style="max-width: 250px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escaparHtml(item.descricao)}">
+        tbody.innerHTML = alterados.map(item => {
+            const renderMudanca = (original, atual, icone) => {
+                if (original) {
+                    return `
+                        <div class="d-flex flex-column">
+                            <del class="text-muted small mb-1" style="font-size: 0.75rem;"><i class="bi bi-arrow-return-right me-1"></i>${escaparHtml(original)}</del>
+                            <span style="font-weight: 600; color: #1e293b;"><i class="bi ${icone} me-1 text-primary"></i>${escaparHtml(atual)}</span>
+                        </div>
+                    `;
+                }
+                return `<span style="font-weight: 500; color: #475569;">${escaparHtml(atual)}</span>`;
+            };
+
+            const patrimonioStr = renderMudanca(item.patrimonioOrgaoOriginal, item.patrimonioOrgaoGestor || item.patrimonioAgevap, "bi-box-seam");
+            const instalacaoStr = renderMudanca(item.instalacaoOriginal, item.instalacaoEndereco, "bi-geo-alt");
+            let condRealOriginal = item.condicaoOriginal || item.condicaoFuncional;
+            let condOriginal = null;
+            let condAtual = item.condicaoFuncional;
+            
+            if (item.novoEstadoConservacao && item.novoEstadoConservacao !== condRealOriginal) {
+                condOriginal = condRealOriginal;
+                condAtual = item.novoEstadoConservacao;
+            } else if (item.condicaoOriginal && item.condicaoOriginal !== item.condicaoFuncional) {
+                condOriginal = item.condicaoOriginal;
+                condAtual = item.condicaoFuncional;
+            }
+            const condicaoStr = renderMudanca(condOriginal, condAtual, "bi-activity");
+
+            return `
+            <tr style="transition: all 0.2s;">
+                <td class="px-3" data-label="Patrimônio AGEVAP" style="font-weight: 700; color: #1e293b;">
+                    <i class="bi bi-box-seam me-2 text-primary" style="opacity: 0.8;"></i>${escaparHtml(item.patrimonioAgevap)}
+                </td>
+                <td class="px-3" data-label="Contrato">
+                    <span class="badge" style="background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 500;">
+                        ${escaparHtml(item.contratoGestao || "S/C")}
+                    </span>
+                </td>
+                <td class="px-3" data-label="Patrimônio Órgão Gestor">
+                    ${patrimonioStr}
+                </td>
+                <td class="px-3" data-label="Descrição">
+                    <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #475569;" title="${escaparHtml(item.descricao)}">
                         ${escaparHtml(item.descricao)}
                     </div>
                 </td>
-                <td data-label="Condição Orig."><span class="badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">${escaparHtml(item.condicaoOriginal)}</span></td>
-                <td data-label="Condição Atual"><span class="badge" style="background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca;">${escaparHtml(item.condicaoFuncional)}</span></td>
-                <td data-label="Vistoriador">${escaparHtml(item.usuarioVistoriador || "-")}</td>
+                <td class="px-3" data-label="Instalação">
+                    ${instalacaoStr}
+                </td>
+                <td class="px-3" data-label="Condição Funcional">
+                    ${condicaoStr}
+                </td>
+                <td class="px-3" data-label="Vistoriador" style="color: #64748b; font-weight: 500;">
+                    <i class="bi bi-person-badge me-2" style="opacity: 0.7;"></i>${escaparHtml(item.usuarioVistoriador || "-")}
+                </td>
             </tr>
-        `).join("");
+            `;
+        }).join("");
     }
 
     const modal = new bootstrap.Modal(document.getElementById('modalAlteradosInservivel'));
     modal.show();
+}
+
+/**
+ * Ajusta a tabela para caber em telas de notebook ou maiores, evitando scroll horizontal.
+ * Aplica quebra de linhas, diminui a fonte e o padding das células.
+ */
+function ajustarTabelaNotebook() {
+    const tableWrap = document.querySelector('.table-wrap');
+    const table = tableWrap ? tableWrap.querySelector('.table') : null;
+    
+    if (!tableWrap || !table) return;
+
+    if (window.innerWidth >= 1024) {
+        table.style.fontSize = '0.75rem';
+        table.style.whiteSpace = 'normal';
+        table.style.wordWrap = 'break-word';
+        table.style.tableLayout = 'auto';
+        table.style.width = '100%';
+        
+        const cells = table.querySelectorAll('th, td');
+        cells.forEach(cell => {
+            cell.style.padding = '0.3rem 0.3rem';
+            if (cell.classList.contains('cell-truncate')) {
+                cell.style.whiteSpace = 'normal';
+            }
+        });
+
+        tableWrap.style.overflowX = 'visible';
+    } else {
+        table.style.fontSize = '';
+        table.style.whiteSpace = 'nowrap';
+        table.style.wordWrap = '';
+        table.style.tableLayout = '';
+        table.style.width = '';
+        
+        const cells = table.querySelectorAll('th, td');
+        cells.forEach(cell => {
+            cell.style.padding = '';
+            if (cell.classList.contains('cell-truncate')) {
+                cell.style.whiteSpace = 'nowrap';
+            }
+        });
+
+        tableWrap.style.overflowX = 'auto';
+    }
+}
+
+async function exportarAlteradosExcel() {
+    try {
+        const response = await fetch('/api/Dashboard/ExportarAlterados', {
+            method: 'GET',
+            headers: obterHeadersAutenticados()
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("Backend error response:", errorText);
+            throw new Error(`Falha ao exportar excel: ${response.status} ${response.statusText}. Details: ${errorText}`);
+        }
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'Bens_Alterados.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error("Erro ao exportar:", error);
+        alert("Não foi possível gerar o relatório em Excel.");
+    }
 }

@@ -31,12 +31,14 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" style="font-weight: 500;">Patrimônio INEA</label>
-                            <input type="text" id="inputInea" name="patrimonioInea" class="form-control" placeholder="Ex: INEA-12345" readonly>
+                            <label class="form-label" style="font-weight: 500;">Patrimônio Órgão Gestor</label>
+                            <input type="text" id="inputInea" name="patrimonioInea" class="form-control" placeholder="Ex: INEA-12345">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" style="font-weight: 500;">Localização / Instalação</label>
-                            <input type="text" id="inputLocalizacao" name="instalacaoEndereco" class="form-control" placeholder="Sede, Depósito, etc." readonly>
+                            <label class="form-label" style="font-weight: 500;">Localização / Instalação + Endereço</label>
+                            <select id="inputLocalizacao" name="instalacaoEndereco" class="form-select">
+                                <option value="">Selecione a instalação...</option>
+                            </select>
                         </div>
                     </div>
 
@@ -44,11 +46,11 @@
                         <label class="form-label" style="font-weight: 500;">Novo Estado de Conservação</label>
                         <select id="novoEstado" name="novoEstado" class="form-select" required>
                             <option value="" disabled selected>Selecione a classificação real do bem...</option>
-                            <option value="Ocioso - Inservível">Ocioso - Inservível</option>
-                            <option value="Obsoleto - Inservível">Obsoleto - Inservível</option>
-                            <option value="Recuperável - Inservível">Recuperável - Inservível</option>
-                            <option value="Antieconômico - Inservível">Antieconômico - Inservível</option>
-                            <option value="Irrecuperável - Inservível">Irrecuperável - Inservível</option>
+                            <option value="OCIOSO - INSERVÍVEL">OCIOSO - INSERVÍVEL</option>
+                            <option value="OBSOLETO - INSERVÍVEL">OBSOLETO - INSERVÍVEL</option>
+                            <option value="RECUPERÁVEL - INSERVÍVEL">RECUPERÁVEL - INSERVÍVEL</option>
+                            <option value="ANTIECONÔMICO - INSERVÍVEL">ANTIECONÔMICO - INSERVÍVEL</option>
+                            <option value="IRRECUPERÁVEL - INSERVÍVEL">IRRECUPERÁVEL - INSERVÍVEL</option>
                         </select>
                     </div>
 

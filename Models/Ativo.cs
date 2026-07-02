@@ -26,6 +26,10 @@ namespace SistemaVistorias.Models
 
         public string InstalacaoEndereco { get; set; } = string.Empty;
 
+        public string? InstalacaoOriginal { get; set; }
+        
+        public string? PatrimonioOrgaoOriginal { get; set; }
+
         public bool IsAvulso { get; set; } = false;
 
         public string? NovoEstadoConservacao { get; set; }
